@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 700"  font-family="Arial Narrow, &#39;Arial Narrow MT&#39;, &#39;Liberation Sans Narrow&#39;, &#39;Helvetica Neue&#39;, Arial, sans-serif" font-weight="400">
+<defs>
+<marker id="a1" markerWidth="9" markerHeight="9" viewBox="0 0 10 10" refX="7.5" refY="5" orient="auto"><path d="M1.5 1L8 5L1.5 9" fill="none" stroke="#9aa6b1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></marker>
+<marker id="aBlue" markerWidth="8" markerHeight="8" viewBox="0 0 10 10" refX="7.5" refY="5" orient="auto"><path d="M1.5 1L8 5L1.5 9" fill="none" stroke="#4a76a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></marker>
+<marker id="aRed" markerWidth="8" markerHeight="8" viewBox="0 0 10 10" refX="7.5" refY="5" orient="auto"><path d="M1.5 1L8 5L1.5 9" fill="none" stroke="#c26a54" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></marker>
+</defs>
+<rect x="0" y="0" width="1800" height="700" fill="#ffffff"></rect>
+<text x="900" y="58" font-size="42" fill="#333c45" text-anchor="middle">How defects limit wide-bandgap power devices</text>
+<rect x="880" y="74" width="40" height="4" rx="2" fill="#c26a54"></rect>
+<rect x="40" y="104" width="360" height="520" rx="10" fill="#fdfdfe" stroke="#dbe2e8" stroke-width="1"></rect>
+<text x="220" y="150" font-size="33" fill="#333c45" text-anchor="middle">Power devices</text>
+<rect x="110" y="248" width="220" height="16" rx="3" fill="#7f8b96"></rect>
+<rect x="110" y="212" width="220" height="36" fill="#dce8f3" stroke="#c4d4e4" stroke-width="1"></rect>
+<rect x="118" y="200" width="46" height="12" rx="2" fill="#5b6773"></rect>
+<rect x="276" y="200" width="46" height="12" rx="2" fill="#5b6773"></rect>
+<rect x="192" y="194" width="56" height="10" rx="2" fill="#c98f52"></rect>
+<line x1="192" y1="208" x2="248" y2="208" stroke="#9aa6b1" stroke-width="2"></line>
+<text x="220" y="286" font-size="28" fill="#333c45" text-anchor="middle">SiC MOSFET</text>
+<text x="220" y="314" font-size="26" fill="#68737f" text-anchor="middle">EV inverters, grids</text>
+<rect x="110" y="370" width="220" height="28" fill="#e7f2ee" stroke="#c9ddd4" stroke-width="1"></rect>
+<line x1="110" y1="374" x2="330" y2="374" stroke="#5f9e8c" stroke-width="2" stroke-dasharray="6,4"></line>
+<rect x="120" y="356" width="40" height="14" rx="2" fill="#5b6773"></rect>
+<rect x="280" y="356" width="40" height="14" rx="2" fill="#5b6773"></rect>
+<rect x="202" y="350" width="36" height="20" rx="2" fill="#c98f52"></rect>
+<text x="220" y="438" font-size="28" fill="#333c45" text-anchor="middle">GaN HEMT</text>
+<text x="220" y="466" font-size="26" fill="#68737f" text-anchor="middle">radio frequency, fast charging</text>
+<polygon points="150,540 290,540 268,512 172,512" fill="#efebf6" stroke="#d3c8e6" stroke-width="1"></polygon>
+<rect x="180" y="540" width="80" height="10" rx="2" fill="#7f8b96"></rect>
+<line x1="190" y1="504" x2="178" y2="476" stroke="#8f7bb5" stroke-width="2.2" stroke-linecap="round"></line>
+<line x1="220" y1="504" x2="220" y2="476" stroke="#8f7bb5" stroke-width="2.2" stroke-linecap="round"></line>
+<line x1="250" y1="504" x2="262" y2="476" stroke="#8f7bb5" stroke-width="2.2" stroke-linecap="round"></line>
+<text x="220" y="582" font-size="28" fill="#333c45" text-anchor="middle">AlN / BN UV LED</text>
+<text x="220" y="610" font-size="26" fill="#68737f" text-anchor="middle">sterilization, sensing</text>
+<circle cx="260" cy="230" r="10" fill="none" stroke="#c26a54" stroke-width="1.6" stroke-dasharray="4,3"></circle>
+<line x1="270" y1="224" x2="470" y2="244" stroke="#c26a54" stroke-width="1.2" stroke-dasharray="5,4" opacity="0.7"></line>
+<line x1="268" y1="238" x2="470" y2="534" stroke="#c26a54" stroke-width="1.2" stroke-dasharray="5,4" opacity="0.7"></line>
+<rect x="430" y="104" width="300" height="520" rx="10" fill="#fdfdfe" stroke="#dbe2e8" stroke-width="1"></rect>
+<text x="580" y="150" font-size="33" fill="#333c45" text-anchor="middle">Inside the crystal</text>
+<circle cx="499" cy="291" r="11" fill="#e2cf90" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="499" cy="337" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="499" cy="383" r="11" fill="#e2cf90" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="499" cy="429" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="545" cy="291" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="545" cy="383" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="545" cy="429" r="11" fill="#e2cf90" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="591" cy="291" r="11" fill="#e2cf90" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="591" cy="337" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="591" cy="383" r="11" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="591" cy="383" r="17" fill="none" stroke="#c98f52" stroke-width="1.8"></circle>
+<circle cx="591" cy="429" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="637" cy="291" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="637" cy="337" r="11" fill="#e2cf90" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="637" cy="383" r="9" fill="#a9bccd" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="637" cy="429" r="11" fill="#e2cf90" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="545" cy="337" r="15" fill="none" stroke="#c26a54" stroke-width="1.8" stroke-dasharray="4,3"></circle>
+<circle cx="614" cy="314" r="8" fill="#5f9e8c" opacity="1" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="614" cy="314" r="14" fill="none" stroke="#5f9e8c" stroke-width="1.8"></circle>
+<line x1="533" y1="347" x2="482" y2="494" stroke="#c26a54" stroke-width="1.2"></line>
+<text x="500" y="524" font-size="29" fill="#c26a54" text-anchor="middle">vacancy</text>
+<line x1="624" y1="304" x2="676" y2="216" stroke="#5f9e8c" stroke-width="1.2"></line>
+<text x="652" y="200" font-size="29" fill="#3f8b76" text-anchor="middle">interstitial</text>
+<line x1="605" y1="393" x2="668" y2="494" stroke="#c98f52" stroke-width="1.2"></line>
+<text x="662" y="524" font-size="29" fill="#a8742f" text-anchor="middle">antisite</text>
+<circle cx="499" cy="337" r="9" fill="#4f9d88" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<ellipse cx="522" cy="337" rx="46" ry="21" fill="none" stroke="#8f7bb5" stroke-width="1.6" stroke-dasharray="5,4"></ellipse>
+<line x1="496" y1="320" x2="478" y2="224" stroke="#8f7bb5" stroke-width="1.2"></line>
+<text x="486" y="208" font-size="29" fill="#8f7bb5" text-anchor="middle">complex</text>
+<text x="580" y="572" font-size="26" fill="#333c45" text-anchor="middle">native defects form</text>
+<text x="580" y="602" font-size="26" fill="#333c45" text-anchor="middle">during crystal growth</text>
+<rect x="760" y="104" width="360" height="520" rx="10" fill="#fdfdfe" stroke="#dbe2e8" stroke-width="1"></rect>
+<text x="940" y="150" font-size="33" fill="#333c45" text-anchor="middle">Deep defect states</text>
+<rect x="812" y="204" width="256" height="52" fill="#e8eef4" rx="4"></rect>
+<rect x="812" y="500" width="256" height="52" fill="#e8eef4" rx="4"></rect>
+<line x1="812" y1="256" x2="1068" y2="256" stroke="#5b6773" stroke-width="3.5" stroke-linecap="round"></line>
+<line x1="812" y1="500" x2="1068" y2="500" stroke="#5b6773" stroke-width="3.5" stroke-linecap="round"></line>
+<text x="940" y="236" font-size="27" fill="#4d5a68" text-anchor="middle">conduction band</text>
+<text x="940" y="534" font-size="27" fill="#4d5a68" text-anchor="middle">valence band</text>
+<line x1="826" y1="266" x2="826" y2="490" stroke="#9aa6b1" stroke-width="1.4" marker-end="url(#a1)" marker-start="url(#a1)"></line>
+<text x="844" y="378" font-size="30" fill="#68737f" text-anchor="middle" transform="rotate(-90 844 378)">wide gap</text>
+<line x1="902" y1="354" x2="968" y2="354" stroke="#c26a54" stroke-width="3" stroke-dasharray="7,5"></line>
+<line x1="962" y1="406" x2="1028" y2="406" stroke="#c98f52" stroke-width="3" stroke-dasharray="7,5"></line>
+<text x="1064" y="332" font-size="27" fill="#c26a54" text-anchor="end">defect levels</text>
+<circle cx="920" cy="256" r="10" fill="#4a76a8"></circle>
+<text x="920" y="263" font-size="17" fill="#ffffff" text-anchor="middle">–</text>
+<path d="M 926 270 Q 938 308 934 344" fill="none" stroke="#4a76a8" stroke-width="2.2" stroke-dasharray="4,3" marker-end="url(#aBlue)"></path>
+<circle cx="934" cy="354" r="8" fill="#4a76a8" opacity="0.85"></circle>
+<path d="M 980 362 q 10 8 0 17 q -10 8 0 17 q 10 8 0 17" fill="none" stroke="#c26a54" stroke-width="2.2" marker-end="url(#aRed)"></path>
+<text x="1018" y="392" font-size="26" fill="#c26a54" text-anchor="start">heat</text>
+<path d="M 998 412 Q 1002 460 996 486" fill="none" stroke="#c98f52" stroke-width="2.2" stroke-dasharray="4,3" marker-end="url(#aRed)"></path>
+<circle cx="996" cy="500" r="10" fill="#ffffff" stroke="#c26a54" stroke-width="2.2"></circle>
+<text x="996" y="507" font-size="17" fill="#c26a54" text-anchor="middle">+</text>
+<text x="940" y="568" font-size="28" fill="#333c45" text-anchor="middle">carrier trapping and</text>
+<text x="940" y="598" font-size="28" fill="#333c45" text-anchor="middle">non-radiative recombination</text>
+<rect x="1150" y="104" width="300" height="520" rx="10" fill="#fdfdfe" stroke="#dbe2e8" stroke-width="1"></rect>
+<text x="1300" y="150" font-size="33" fill="#333c45" text-anchor="middle">Device penalties</text>
+<rect x="1174" y="192" width="252" height="56" rx="8" fill="#faf7f6" stroke="#eadfdb" stroke-width="1"></rect>
+<text x="1192" y="228" font-size="27" fill="#333c45" text-anchor="start">carrier mobility</text>
+<text x="1410" y="230" font-size="34" fill="#c26a54" text-anchor="end">↓</text>
+<rect x="1174" y="266" width="252" height="56" rx="8" fill="#faf7f6" stroke="#eadfdb" stroke-width="1"></rect>
+<text x="1192" y="302" font-size="27" fill="#333c45" text-anchor="start">breakdown voltage</text>
+<text x="1410" y="304" font-size="34" fill="#c26a54" text-anchor="end">↓</text>
+<rect x="1174" y="340" width="252" height="56" rx="8" fill="#faf7f6" stroke="#eadfdb" stroke-width="1"></rect>
+<text x="1192" y="376" font-size="27" fill="#333c45" text-anchor="start">on-resistance</text>
+<text x="1410" y="378" font-size="34" fill="#c26a54" text-anchor="end">↑</text>
+<rect x="1174" y="414" width="252" height="56" rx="8" fill="#faf7f6" stroke="#eadfdb" stroke-width="1"></rect>
+<text x="1192" y="450" font-size="27" fill="#333c45" text-anchor="start">switching loss</text>
+<text x="1410" y="452" font-size="34" fill="#c26a54" text-anchor="end">↑</text>
+<rect x="1174" y="488" width="252" height="56" rx="8" fill="#faf7f6" stroke="#eadfdb" stroke-width="1"></rect>
+<text x="1192" y="524" font-size="27" fill="#333c45" text-anchor="start">reliability</text>
+<text x="1410" y="526" font-size="34" fill="#c26a54" text-anchor="end">↓</text>
+<rect x="1174" y="562" width="252" height="56" rx="8" fill="#faf7f6" stroke="#eadfdb" stroke-width="1"></rect><text x="1192" y="598" font-size="27" fill="#333c45" text-anchor="start">leakage current</text><text x="1410" y="600" font-size="34" fill="#c26a54" text-anchor="end">↑</text>
+<rect x="1480" y="104" width="280" height="520" rx="10" fill="#fdfdfe" stroke="#dbe2e8" stroke-width="1"></rect>
+<text x="1620" y="150" font-size="33" fill="#333c45" text-anchor="middle">Screen them out</text>
+<circle cx="1580" cy="250" r="9" fill="#e2cf90" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1580" cy="290" r="7" fill="#a9bccd" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1580" cy="330" r="9" fill="#e2cf90" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1620" cy="250" r="7" fill="#a9bccd" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1620" cy="290" r="9" fill="#e2cf90" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1620" cy="330" r="7" fill="#a9bccd" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1660" cy="250" r="9" fill="#e2cf90" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1660" cy="290" r="7" fill="#a9bccd" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1660" cy="330" r="9" fill="#e2cf90" opacity="0.9" stroke="rgba(40,50,60,0.15)" stroke-width="0.8"></circle>
+<circle cx="1636" cy="282" r="42" fill="none" stroke="#5f9e8c" stroke-width="3"></circle>
+<line x1="1666" y1="312" x2="1694" y2="340" stroke="#5f9e8c" stroke-width="5" stroke-linecap="round"></line>
+<text x="1620" y="416" font-size="38" fill="#7096bd" text-anchor="middle">364</text>
+<text x="1620" y="446" font-size="26" fill="#68737f" text-anchor="middle">host crystals</text>
+<text x="1620" y="496" font-size="38" fill="#c98f52" text-anchor="middle">80,810</text>
+<text x="1620" y="526" font-size="26" fill="#68737f" text-anchor="middle">defects screened</text>
+<text x="1620" y="576" font-size="38" fill="#3f8b76" text-anchor="middle">755</text>
+<text x="1620" y="606" font-size="26" fill="#68737f" text-anchor="middle">dopants screened</text>
+<line x1="402" y1="364" x2="428" y2="364" stroke="#9aa6b1" stroke-width="1.8" marker-end="url(#a1)"></line>
+<line x1="732" y1="364" x2="758" y2="364" stroke="#9aa6b1" stroke-width="1.8" marker-end="url(#a1)"></line>
+<line x1="1122" y1="364" x2="1148" y2="364" stroke="#9aa6b1" stroke-width="1.8" marker-end="url(#a1)"></line>
+<line x1="1452" y1="364" x2="1478" y2="364" stroke="#9aa6b1" stroke-width="1.8" marker-end="url(#a1)"></line>
+</svg>
