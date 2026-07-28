@@ -8,7 +8,7 @@
      index.html always requests the current bundle url.
    - Requests carrying a query string (?v=, ?fresh=) bypass the cache (deploy checks). */
 const CACHE = 'wbg-v3';
-const CACHEABLE = /\/wbg\/(assets\/|cifs\/|trajs\/|.*\.jsongz$|banner\.svg$|atom\.png)/;
+const CACHEABLE = /\/wbg-v2\/(assets\/|cifs\/|trajs\/|.*\.jsongz$|banner\.svg$|atom\.png)/;
 
 self.addEventListener('install', (e) => { self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
