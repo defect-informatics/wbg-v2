@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="2e2a8693b2";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="121031eecb";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){if(!("serviceWorker" in navigator))return;/* A previously installed worker keeps controlling the page until it updates, so the first load
    after a deploy could still be answered by the OLD caching rules ("old layout, refresh once").
    Force an update check on every load and reload EXACTLY ONCE when a new worker takes control. */
@@ -5475,16 +5475,32 @@ void main() {
     return await new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).json(); }
   function defn(s) { return String(s).replace(/([A-Z][a-z]?)_([A-Za-z0-9]+)/g, function (m, a, b) { return a + "<sub>" + b + "</sub>"; }); }
   function drawLabel(ctx, name, x, y, f) {
-    var p = String(name).split("_");
-    ctx.font = "600 " + f + "px ui-sans-serif,system-ui,sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-    var wMain = ctx.measureText(p[0]).width;
-    var sub = p.length > 1 ? p[1] : "";
-    ctx.font = "600 " + (f * 0.72) + "px ui-sans-serif,system-ui,sans-serif";
-    var wSub = sub ? ctx.measureText(sub).width : 0;
-    var gap = f * 0.12;   // tuck the subscript in tight against the main (fixes the "i far away" gap)
-    var tot = wMain + wSub - gap, sx = x - tot / 2;
-    ctx.font = "600 " + f + "px ui-sans-serif,system-ui,sans-serif"; ctx.fillText(p[0], sx, y);
-    if (sub) { ctx.font = "600 " + (f * 0.72) + "px ui-sans-serif,system-ui,sans-serif"; ctx.fillText(sub, sx + wMain - gap, y + f * 0.24); }
+    // Canvas has no <sub>, so the label is composed piece by piece: each part of a
+    // complex ("V_Al+H_i") keeps its own subscript, everything is measured first so the
+    // whole composite is centred, and the family matches the rest of the site.
+    var FAM = "'Arial Narrow','Arial Narrow Web',Arial,sans-serif";
+    var MAIN = "600 " + f + "px " + FAM, SUB = "600 " + (f * 0.78) + "px " + FAM;
+    var parts = String(name).split("+").map(function (t) {
+      var q = t.split("_");
+      return { base: q[0], sub: q.length > 1 ? q.slice(1).join("_") : "" };
+    });
+    var total = 0, i;
+    for (i = 0; i < parts.length; i++) {
+      ctx.font = MAIN; total += ctx.measureText(parts[i].base).width;
+      if (parts[i].sub) { ctx.font = SUB; total += ctx.measureText(parts[i].sub).width; }
+      if (i < parts.length - 1) { ctx.font = MAIN; total += ctx.measureText("+").width; }
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    var sx = x - total / 2;
+    for (i = 0; i < parts.length; i++) {
+      ctx.font = MAIN; ctx.fillText(parts[i].base, sx, y);
+      sx += ctx.measureText(parts[i].base).width;
+      if (parts[i].sub) {
+        ctx.font = SUB; ctx.fillText(parts[i].sub, sx, y + f * 0.20);
+        sx += ctx.measureText(parts[i].sub).width;
+      }
+      if (i < parts.length - 1) { ctx.font = MAIN; ctx.fillText("+", sx, y); sx += ctx.measureText("+").width; }
+    }
   }
 
   function build(after, G) {
