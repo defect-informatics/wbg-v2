@@ -5016,7 +5016,7 @@ void main() {
     box.innerHTML = title
       + `<div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:6px">${tabs}`
       + `<button id="gwmap-cifcopy" title="copy CIF" style="margin-left:auto;font-size:11.5px;border:1px solid ${CL.border};border-radius:6px;padding:2px 10px;cursor:pointer;background:${CL.card};color:${CL.ink}">copy CIF</button></div>`
-      + `<div id="gwmap-mvhost" style="width:100%;height:320px;position:relative;border:1px solid ${CL.border};border-radius:8px;background:var(--wbg-panel,#fff);overflow:hidden"></div>`
+      + `<div id="gwmap-mvhost" style="width:100%;height:560px;position:relative;border:1px solid ${CL.border};border-radius:8px;background:var(--wbg-panel,#fff);overflow:hidden"></div>`
       + `<div id="gwmap-mvcap" style="font-size:10.5px;color:${CL.muted};margin-top:4px;line-height:1.4"></div>`;
     const cp = box.querySelector("#gwmap-cifcopy");
     cp.addEventListener("click", () => {
@@ -5039,7 +5039,7 @@ void main() {
       host3d.innerHTML = "";
       const gfr = document.createElement("iframe");
       gfr.src = "structgrid/";
-      gfr.style.cssText = "width:100%;height:480px;border:none;border-radius:10px;background:#fff";
+      gfr.style.cssText = "width:100%;height:100%;border:none;border-radius:10px;background:#fff";
       const gsend = (bc, hh) => { try { gfr.contentWindow.postMessage({ type: "struct", cif: cif, bulkCif: bc || undefined, nparts: nparts, highlight: (hh && hh.length) ? hh : undefined }, "*"); } catch (e) {} };
       gfr.onload = () => gsend(bulkCif, hi);
       host3d.appendChild(gfr);
