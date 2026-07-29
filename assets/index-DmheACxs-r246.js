@@ -7098,7 +7098,8 @@ void main() {
   }
   let XH = null;              // xhosts map
   const CIFS = {};            // mp -> cifs payload
-  const CACHE = {};           // mp|defect|el|q -> result
+  const CACHE = window.__wbgXanesCache = window.__wbgXanesCache || {};   // mp|defect|el|q -> result (window-scoped: survives tab switches)
+  const JOBS = window.__wbgXanesJobs = window.__wbgXanesJobs || {};      // in-flight FEFF jobs, reattached on return
   let panel = null, busy = false;
 
   async function jz(url) {
@@ -7264,9 +7265,19 @@ void main() {
       const refCif = xr ? xr.cif : "";
       stat.textContent = "computing on the FEFF10 space (structures: bulk " + bEnt[1] + ", defect " + dEnt[1] + ") …";
       const t0 = Date.now();
-      const fin = await stream([bEnt[0], dEnt[0], el, "", edge, q[0], q[1], q[2], refCif], d => {
-        stat.textContent = "FEFF10: " + (d.desc || "running") + " — " + Math.round((Date.now() - t0) / 1000) + " s";
-      });
+      if (!JOBS[ck]) {
+        JOBS[ck] = { t0: Date.now(), last: "queued",
+                     p: stream([bEnt[0], dEnt[0], el, "", edge, q[0], q[1], q[2], refCif],
+                               d => { JOBS[ck] && (JOBS[ck].last = d.desc || "running"); }) };
+      } else {
+        stat.textContent = "reattached to the FEFF10 job already running for this defect…";
+      }
+      const tmr = setInterval(() => {
+        try { if (JOBS[ck]) stat.textContent = "FEFF10: " + JOBS[ck].last + " — " +
+          Math.round((Date.now() - JOBS[ck].t0) / 1000) + " s (keeps running if you switch tabs — come back and press compute to reattach)"; } catch (e) {}
+      }, 1000);
+      let fin;
+      try { fin = await JOBS[ck].p; } finally { clearInterval(tmr); delete JOBS[ck]; }
       if (!fin || !fin.ok) throw new Error((fin && fin.error) || "no result from the compute space — this page may be one version behind; refresh (Cmd+Shift+R) and try again");
       fin._src = { bulk: bEnt[1], defect: dEnt[1] }; fin._key = defectKey; fin._refEl = fin.ref ? el : null; fin._fn = (mp + "_" + defectKey + "_" + el + "_" + edge).replace(/[^A-Za-z0-9_+-]/g, "");
       CACHE[ck] = fin;
@@ -8841,7 +8852,12 @@ void main() {
         if (ev.key === "Escape") { const q = document.getElementById("wbg-trajm-panel"); if (q) { q.remove(); panel = null; } }
       });
     }
-    panel.style.cssText = "position:fixed;left:18px;bottom:12px;width:960px;max-width:97vw;max-height:calc(100vh - 24px);overflow-y:auto;" +
+    panel.style.cssText = "position:fixed;left:18px;bottom:12px;width:960px;max-width:97vw;max-height:calc(100vh - 24px);display:flex;flex-direction:column;overflow:hidden;" +
+      "";
+    { const z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+      panel.style.maxHeight = Math.floor((window.innerHeight - 24) / z) + "px";
+      panel.style.width = Math.min(960, Math.floor((window.innerWidth - 40) / z)) + "px"; }
+    panel.style.cssText += "" +
       "background:#fff;border:1px solid " + BORD + ";border-radius:12px;box-shadow:0 6px 24px rgba(20,40,60,.18);" +
       "z-index:9998;padding:13px 15px;font-size:13px;color:#1a1e2e;font-family:'Arial Narrow',Arial,sans-serif";
     document.body.appendChild(panel);
@@ -8861,15 +8877,16 @@ void main() {
     const p = ensurePanel();
     let opts = "";
     sources.forEach((s, i) => { opts += '<option value="' + i + '">' + s.label + "</option>"; });
-    p.innerHTML = '<div style="display:flex;align-items:center;gap:8px;position:sticky;top:-13px;background:#fff;z-index:3;padding:13px 0 7px;margin-top:-13px;border-bottom:1px solid ' + BORD + '">' +
+    p.innerHTML = '<div style="display:flex;align-items:center;gap:8px;flex:0 0 auto;background:#fff;padding:0 0 7px;border-bottom:1px solid ' + BORD + '">' +
       '<div style="font-weight:800;font-size:14px;color:' + TEAL + '">relaxation movie — ' + sub(display.replace(/[⚡]/g, "")) + " in " + sub(host).replace(/([A-Za-z\)])(\d+)/g, "$1<sub>$2</sub>") + "</div>" +
-      '<button id="tjm-close" style="margin-left:auto;border:1px solid ' + BORD + ';background:#fff;border-radius:7px;cursor:pointer;padding:2px 9px;font-size:12px">close</button></div>' +
+      '<button id="tjm-close" style="margin-left:auto;border:1px solid ' + BORD + ';background:#0e7490;color:#fff;border-radius:7px;cursor:pointer;padding:3px 12px;font-size:12.5px;font-weight:700">✕ close</button></div>' +
+      '<div id="tjm-body" style="flex:1 1 auto;overflow-y:auto;min-height:0">' +
       '<div style="display:flex;gap:8px;align-items:center;margin:9px 0 7px">' +
       '<label style="font-size:12px;color:' + MUT + '">engine / charge <select id="tjm-src" style="font-size:12.5px;padding:3px 7px;border:1px solid ' + BORD + ';border-radius:7px">' + opts + "</select></label>" +
       '<div id="tjm-meta" style="font-size:11.5px;color:' + MUT + '"></div></div>' +
       '<div id="tjm-curve"></div>' +
       '<iframe id="tjm-frame" src="traj/" style="width:100%;height:600px;border:1px solid ' + BORD + ';border-radius:10px;margin-top:8px;background:#fff"></iframe>' +
-      '<div style="font-size:11px;color:#8a93a0;margin-top:7px;line-height:1.45;text-align:justify">movie frames are subsampled from the stored trajectory; the curve above shows every ionic step. MLFF positions (all six models) are Cartesian from the FIRE relaxation (final cell shown for all frames); DFT frames are the BFGS ionic steps from the campaign run.</div>';
+      '<div style="font-size:11px;color:#8a93a0;margin-top:7px;line-height:1.45;text-align:justify">movie frames are subsampled from the stored trajectory; the curve above shows every ionic step. MLFF positions (all six models) are Cartesian from the FIRE relaxation (final cell shown for all frames); DFT frames are the BFGS ionic steps from the campaign run.</div></div>';
     p.querySelector("#tjm-close").onclick = () => { p.remove(); panel = null; };
     // ---- exact defect-site marks: frame 0 vs host bulk supercell -------------
     // one mark per named part: missing bulk site = vacancy, unmatched atom =
@@ -10788,7 +10805,7 @@ void main() {
       '<div id="snb-frame-slot"></div>';
     const old = panel.querySelector("#wbg-snb-block");
     if (old) old.remove();
-    panel.appendChild(div);
+    (panel.querySelector("#tjm-body") || panel).appendChild(div);
     div.querySelector("#snb-curve").innerHTML = curveSVG(per);
     const eq = per.equflashv2 || {};
     const sel = div.querySelector("#snb-sel");
