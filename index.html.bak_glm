@@ -9,7 +9,7 @@
     <meta http-equiv="Expires" content="0" />
     <title>Kosmos — WBG v2 — All-QE Defect Library (AlN)</title>
     <meta name="description" content="WBG v2: all-QE charged-defect campaign. AlN mp-661: 84 defects, 6 MLFFs, 25 DFT-converged with HSE band edges and finite-size-corrected transition levels." />
-    <script type="module" crossorigin src="/wbg-v2/assets/index-DmheACxs-r284.js"></script>
+    <script type="module" crossorigin src="/wbg-v2/assets/index-DmheACxs-r283.js"></script>
     <link rel="stylesheet" crossorigin href="/wbg-v2/assets/index-GChtEimG-r6.css">
     <style>*, *::before, *::after { font-family: var(--wbg-font, 'Arial Narrow', 'Helvetica Neue Condensed', Arial, sans-serif) !important; }
       :root { zoom: 1.22;
@@ -58,9 +58,9 @@
         var fl=localStorage.getItem('wbg-font-link'); if(fl){var l=document.createElement('link');l.rel='stylesheet';l.href=fl;document.head.appendChild(l);}
         var bg=localStorage.getItem('wbg-bg'); if(bg) document.documentElement.style.setProperty('--wbg-bg',bg);
         if('caches' in window) caches.keys().then(function(keys){
-          return Promise.all(keys.filter(function(k){return k.indexOf('wbg')===0;}).map(function(k){return caches.delete(k);}));
+          return Promise.all(keys.filter(function(k){return k.indexOf('wbg-v2-')===0;}).map(function(k){return caches.delete(k);}));
         });
-        if('serviceWorker' in navigator){navigator.serviceWorker.register('/wbg-v2/sw.js',{updateViaCache:'none'}).then(function(r){return r.update();});var _rl=false;navigator.serviceWorker.addEventListener('controllerchange',function(){if(_rl)return;_rl=true;location.reload();});}
+        if('serviceWorker' in navigator) navigator.serviceWorker.register('/wbg-v2/sw.js',{updateViaCache:'none'}).then(function(r){return r.update();});
       }catch(e){}})();
     </script>
     <style>

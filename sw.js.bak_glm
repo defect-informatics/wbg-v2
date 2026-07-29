@@ -12,7 +12,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     for (const key of await caches.keys()) {
-      if (key.startsWith('wbg')) await caches.delete(key);  // wbg-v2-* AND legacy wbg-v3
+      if (key.startsWith('wbg-v2-')) await caches.delete(key);
     }
     await self.clients.claim();
   })());
