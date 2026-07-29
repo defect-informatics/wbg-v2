@@ -9577,7 +9577,7 @@ void main() {
       "</span></div>";
 
     // ---------------- top row ----------------
-    h += '<div style="display:grid;grid-template-columns:340px 1fr 470px;gap:1px;background:' + HAIR + '">';
+    h += '<div style="display:grid;grid-template-columns:minmax(0,340px) minmax(320px,1fr) minmax(0,470px);gap:1px;background:' + HAIR + '">';
 
     // P1 — table + facts
     let p1 = H2("Neutral (q=0) formation energy per growth condition");
@@ -9648,7 +9648,7 @@ void main() {
 
     // ---------------- bottom row (DFT only) ----------------
     if (hasDFT && lrec) {
-      h += '<div style="display:grid;grid-template-columns:340px 1fr 470px;gap:1px;background:' + HAIR + '">';
+      h += '<div style="display:grid;grid-template-columns:minmax(0,340px) minmax(320px,1fr) minmax(0,470px);gap:1px;background:' + HAIR + '">';
       h += '<div style="' + PANEL + '" id="db-relax">' + H2("Defect coordination — " + sub(S.def)) + '<div id="db-relax-body" style="flex:1;display:flex;flex-direction:column"><div style="color:' + MUT2 + ';font-size:14.0px">analyzing relaxed geometry…</div></div></div>';
       let p5 = '<style>#db-cond{padding-top:2px !important;padding-bottom:4px !important;padding-right:22px !important;line-height:1.35 !important;font-size:14.0px !important;background-position:right 6px center !important}</style>' +
         '<div style="font-size:14.5px;color:' + TEAL + ';margin-bottom:8px;text-align:center">Formation energy vs Fermi level &nbsp;<select id="db-cond" style="font-size:14.0px;padding:4px 8px;border:1px solid ' + HAIR + ';border-radius:7px">' +
