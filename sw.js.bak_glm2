@@ -8,7 +8,6 @@ const NETWORK_ONLY = /\/wbg-v2\/(assets\/|cifs\/|trajs\/|structgrid\/|landscape\
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());
 });
-self.addEventListener('message', (e) => { if (e.data === 'skipWaiting') self.skipWaiting(); });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
