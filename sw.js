@@ -9,7 +9,7 @@
      for fast repeat visits. Versioned filenames make cached copies immutable, so a fresh
      index.html always requests the current bundle url.
    - Requests carrying a query string (?v=, ?fresh=) bypass the cache (deploy checks). */
-const CACHE = 'wbg-v2-ba76487e92';
+const CACHE = 'wbg-v2-9623b5c3bf';
 const CACHEABLE = /\/wbg-v2\/(assets\/|cifs\/|trajs\/|.*\.jsongz$|banner\.svg$|atom\.png)/;
 
 self.addEventListener('install', (e) => { self.skipWaiting(); });
