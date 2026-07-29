@@ -5416,7 +5416,7 @@ void main() {
     // complex ("V_Al+H_i") keeps its own subscript, everything is measured first so the
     // whole composite is centred, and the family matches the rest of the site.
     var FAM = "'Arial Narrow','Arial Narrow Web',Arial,sans-serif";
-    var MAIN = "600 " + f + "px " + FAM, SUB = "600 " + (f * 0.78) + "px " + FAM;
+    var MAIN = "400 " + f + "px " + FAM, SUB = "400 " + (f * 0.75) + "px " + FAM;
     var parts = String(name).split("+").map(function (t) {
       var q = t.split("_");
       return { base: q[0], sub: q.length > 1 ? q.slice(1).join("_") : "" };
@@ -5530,7 +5530,7 @@ void main() {
         ctx.beginPath(); ctx.arc(n.x, n.y, rad, 0, 7);
         ctx.fillStyle = i === hoverNode ? CL.accent : "#5b8aa6"; ctx.globalAlpha = dim ? 0.25 : 1; ctx.fill();
         ctx.lineWidth = 1.5; ctx.strokeStyle = "#fff"; ctx.stroke();
-        ctx.fillStyle = dim ? "#aab4bd" : CL.ink; drawLabel(ctx, n.id, n.x, n.y + rad + 9, 11.5);
+        ctx.fillStyle = dim ? "#aab4bd" : CL.ink; drawLabel(ctx, n.id, n.x, n.y + rad + 11, 15);
         ctx.globalAlpha = 1;
       });
     }
