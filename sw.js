@@ -7,7 +7,7 @@
      for fast repeat visits. Versioned filenames make cached copies immutable, so a fresh
      index.html always requests the current bundle url.
    - Requests carrying a query string (?v=, ?fresh=) bypass the cache (deploy checks). */
-const CACHE = 'wbg-v3';
+const CACHE = 'wbg-v2-r260';
 const CACHEABLE = /\/wbg-v2\/(assets\/|cifs\/|trajs\/|.*\.jsongz$|banner\.svg$|atom\.png)/;
 
 self.addEventListener('install', (e) => { self.skipWaiting(); });
@@ -27,7 +27,20 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => caches.match(e.request)));
     return;
   }
-  if (url.search) return;                       // cache-busted requests go to network
+  if (url.search) return;
+  // DATA (.jsongz) -> NETWORK-FIRST: stale-while-revalidate used to hand back the previous
+  // payload on the first visit to a tab, so a rebuilt table/plot showed its old layout until
+  // a second reload. Payloads are small; correctness wins. Cache stays as the offline fallback.
+  if (url.pathname.endsWith('.jsongz')) {
+    e.respondWith((async () => {
+      try {
+        const r = await fetch(e.request, { cache: 'no-cache' });
+        if (r && r.ok) { const c = await caches.open(CACHE); c.put(e.request, r.clone()); }
+        return r;
+      } catch (err) { return (await caches.match(e.request)) || Promise.reject(err); }
+    })());
+    return;
+  }                       // cache-busted requests go to network
   if (!CACHEABLE.test(url.pathname)) return;    // everything else: browser default
   e.respondWith(
     caches.open(CACHE).then(async (c) => {
