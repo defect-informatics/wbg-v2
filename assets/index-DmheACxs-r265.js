@@ -8169,12 +8169,7 @@ void main() {
       const P = [];
       P.push(["host", hs.map(h => `<b style="font-size:14px">${sub(h.formula)}</b><br><span style="color:#9aa3ae;font-size:14.0px">${esc(h.family)} · ${esc(h.mp)}</span>`)]);
       P.push(["rank (of v2 hosts)", hs.map(h => `<b>#${h.rank}</b>`)]);
-      P.push(["PBE gap (eV)", hs.map(h => h.gap.toFixed(2))]);
-      P.push([`exp gap · ε<sub>s</sub>`, hs.map(h => {
-        const L = levels[h.mp]; if (!L) return `<span style="color:#9aa3ae">—</span>`;
-        const e0 = L[Object.keys(L)[0]];
-        return `${e0.gap.toFixed(2)} eV · ${e0.eps != null ? e0.eps.toFixed(1) : "—"}`;
-      })]);
+      P.push(["PBE gap (eV)", hs.map(h => h.dft_gap != null ? h.dft_gap.toFixed(2) : `<span style="color:#9aa3ae">—</span>`)]);P.push(["HSE06 gap (eV)", hs.map(h => h.gap.toFixed(2))]);P.push(["exp. gap (eV)", hs.map(h => { const e = (typeof a8 !== "undefined" && a8[h.mp]) ? a8[h.mp] : null; return e ? `${(+e[0]).toFixed(2)}<br><span style="color:#9aa3ae;font-size:13px">${esc(String(e[1]||""))}</span>` : `<span style="color:#9aa3ae">—</span>`; })]);P.push([`ε<sub>s</sub> (static)`, hs.map(h => { const L = levels[h.mp]; if (!L) return `<span style="color:#9aa3ae">—</span>`; const e0 = L[Object.keys(L)[0]]; return e0.eps != null ? e0.eps.toFixed(2) : `<span style="color:#9aa3ae">—</span>`; })]);
       P.push(["defect tolerance (eV)", hs.map(h => `<b style="color:#0e7490">+${h.tol.toFixed(2)}</b><br><span style="color:#9aa3ae;font-size:14.0px">${sub(h.low)}</span>`)]);
       P.push(["limiting native defects", hs.map(h => {
         const L = lim[h.mp]; if (!L) return "—";
