@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="121031eecb";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="c64535ebae";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){if(!("serviceWorker" in navigator))return;/* A previously installed worker keeps controlling the page until it updates, so the first load
    after a deploy could still be answered by the OLD caching rules ("old layout, refresh once").
    Force an update check on every load and reload EXACTLY ONCE when a new worker takes control. */
@@ -10857,7 +10857,7 @@ void main() {
       const slot = div.querySelector("#snb-frame-slot");
       if (!rec) { slot.innerHTML = '<div style="font-size:14.0px;color:#b45309;margin-top:6px">no stored trajectory for this distortion</div>'; return; }
       const K = rec.frames.length, ns = rec.curve.e.length;
-      div.querySelector("#snb-meta").textContent = ns + " steps · E_final " + (rec.curve.e[ns - 1] == null ? "?" : rec.curve.e[ns - 1].toFixed(3)) + " eV";
+      div.querySelector("#snb-meta").textContent = ns + " steps · E_final " + (rec.curve.e[ns - 1] == null ? "?" : rec.curve.e[ns - 1].toFixed(2)) + " eV";
       const frames = rec.frames.map((fr, k) => ({ cif: toCif(rec.cell, rec.symbols, fr.pos),
         energy: fr.e, fmax: fr.f, step: K > 1 ? Math.round(k * (ns - 1) / (K - 1)) : 0 }));
       slot.innerHTML = '<iframe id="snb-frame" src="traj/" style="width:100%;height:560px;border:1px solid ' + BORD + ';border-radius:10px;margin-top:8px;background:#fff"></iframe>';
