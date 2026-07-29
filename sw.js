@@ -3,11 +3,13 @@
      (Previously index.html fell through to the browser's 10-min HTTP cache, which
      served a stale bundle reference -> the recurring "old layout". Now uses {cache:'no-store'}
      so index.html is ALWAYS network-fresh, never the browser HTTP cache.)
-   - Heavy VERSIONED assets + data (bundle, cifs, trajs, jsongz): stale-while-revalidate
+   - Data (.jsongz): NETWORK-FIRST, checked before the query bypass, so a rebuilt payload is
+     never masked (the app also stamps every data URL with a build digest).
+   - Heavy VERSIONED assets (bundle, wasm, css): stale-while-revalidate
      for fast repeat visits. Versioned filenames make cached copies immutable, so a fresh
      index.html always requests the current bundle url.
    - Requests carrying a query string (?v=, ?fresh=) bypass the cache (deploy checks). */
-const CACHE = 'wbg-v2-r260';
+const CACHE = 'wbg-v2-ba76487e92';
 const CACHEABLE = /\/wbg-v2\/(assets\/|cifs\/|trajs\/|.*\.jsongz$|banner\.svg$|atom\.png)/;
 
 self.addEventListener('install', (e) => { self.skipWaiting(); });
@@ -22,12 +24,6 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET') return;
   if (url.origin !== location.origin) return;
-  // Navigations / index.html -> NETWORK-FIRST (always the current bundle ref), cache fallback offline.
-  if (e.request.mode === 'navigate' || url.pathname === '/wbg-v2/' || url.pathname.endsWith('/index.html')) {
-    e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => caches.match(e.request)));
-    return;
-  }
-  if (url.search) return;
   // DATA (.jsongz) -> NETWORK-FIRST: stale-while-revalidate used to hand back the previous
   // payload on the first visit to a tab, so a rebuilt table/plot showed its old layout until
   // a second reload. Payloads are small; correctness wins. Cache stays as the offline fallback.
@@ -35,12 +31,19 @@ self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {
       try {
         const r = await fetch(e.request, { cache: 'no-cache' });
+        // keep an offline copy, but ONLINE the network answer always wins
         if (r && r.ok) { const c = await caches.open(CACHE); c.put(e.request, r.clone()); }
         return r;
       } catch (err) { return (await caches.match(e.request)) || Promise.reject(err); }
     })());
     return;
-  }                       // cache-busted requests go to network
+  }
+  // Navigations / index.html -> NETWORK-FIRST (always the current bundle ref), cache fallback offline.
+  if (e.request.mode === 'navigate' || url.pathname === '/wbg-v2/' || url.pathname.endsWith('/index.html')) {
+    e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => caches.match(e.request)));
+    return;
+  }
+  if (url.search) return;                       // cache-busted requests go to network
   if (!CACHEABLE.test(url.pathname)) return;    // everything else: browser default
   e.respondWith(
     caches.open(CACHE).then(async (c) => {
