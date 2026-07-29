@@ -5414,7 +5414,7 @@ void main() {
         try {
           const d = f.contentDocument;
           const st = d.createElement("style");
-          st.textContent = "html,body{overflow:hidden !important;margin:0}svg text{font-size:14px !important}";
+          st.textContent = "html,body{overflow:hidden !important;margin:0}svg text{font-size:17px !important}" + " svg text[text-anchor=middle][transform], svg .axis-title{font-size:20px !important;font-weight:600}";
           d.head.appendChild(st);
         } catch (e) {}
       });
