@@ -9991,6 +9991,7 @@ void main() {
         let a = n;
         while (a && a.parentElement && !a.parentElement.contains(row)) a = a.parentElement;
         if (!a || a === document.body || !a.parentElement || a.contains(row) || isRowShape(a)) return null;
+        if (!grid.contains(a)) return null;
         if (a.getBoundingClientRect().width < Math.max(700, window.innerWidth * 0.55)) return null;
         return a;
       };
@@ -10022,7 +10023,7 @@ void main() {
         })();
       };
       // re-click: React reused a full-width container that already holds our box
-      const prior = [...document.querySelectorAll(".wbg-dashx")].find(b => b.isConnected && b.parentElement && b.parentElement.getBoundingClientRect().width >= Math.max(700, window.innerWidth * 0.55));
+      const prior = [...document.querySelectorAll(".wbg-dashx")].find(b => b.isConnected && b.parentElement && grid.contains(b) && b.parentElement.getBoundingClientRect().width >= Math.max(700, window.innerWidth * 0.55));
       if (prior) { mount(prior.parentElement); return; }
       // otherwise catch the full-width expansion the instant React inserts it
       mo = new MutationObserver(muts => {
