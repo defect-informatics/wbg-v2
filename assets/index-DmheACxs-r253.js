@@ -9566,7 +9566,7 @@ void main() {
     const bases = [...new Set(rows.map(r => r.base))].sort();
     if (!S.def || !bases.includes(S.def)) S.def = bases.find(b => rows.some(r => r.base === b && r.Ef_DFT != null)) || bases[0];
     const drows = rows.filter(r => r.base === S.def);
-    const drow = drows.slice().sort((a, b) => (a.eq_lo ?? 9e9) - (b.eq_lo ?? 9e9))[0];
+    const drow = drows.slice().sort((a, b) => ((a.Ef_DFT != null ? 0 : 1) - (b.Ef_DFT != null ? 0 : 1)) || ((a.eq_lo ?? 9e9) - (b.eq_lo ?? 9e9)))[0];
     const dname = drow ? drow.defect : S.def;
     const conds = CONDS.filter(c => c.mp_id === S.mp && c.defect === dname);
     const hasDFT = conds.some(c => c.Ef_DFT != null);
