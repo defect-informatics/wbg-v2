@@ -4836,9 +4836,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
   const PAD = { l: 60, r: 10, t: 8, b: 46 }, CW = 640, CH = 380, DPR = Math.min(2.5, (window.devicePixelRatio || 1) * 1.25);
   const pw = () => CW - PAD.l - PAD.r, ph = () => CH - PAD.t - PAD.b;
-  const xOf = T => PAD.l + (T - 400) / 1600 * pw();
+  const T0 = () => (host && host.T && host.T[0]) ?? 400, T1 = () => (host && host.T && host.T[host.T.length - 1]) ?? 2000;
+  const xOf = T => PAD.l + (T - T0()) / (T1() - T0()) * pw();
   const yOf = lp => PAD.t + (-lp) / 9 * ph();
-  const TOf = x => 400 + (x - PAD.l) / pw() * 1600;
+  const TOf = x => T0() + (x - PAD.l) / pw() * (T1() - T0());
   const lpOf = y => -(y - PAD.t) / ph() * 9;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -4872,7 +4873,8 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     }
     ctx.stroke();
     ctx.fillStyle = CL.muted; ctx.font = "14px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "top";
-    for (let T = 400; T <= 2000; T += 400) { ctx.fillRect(xOf(T) - .5, CH - PAD.b, 1, 4); ctx.fillText(String(T), xOf(T), CH - PAD.b + 8); }
+    const _t0 = T0(), _t1 = T1(), _step = Math.max(100, Math.round((_t1 - _t0) / 4 / 100) * 100);
+    for (let T = _t0; T <= _t1 + 1; T += _step) { ctx.fillRect(xOf(T) - .5, CH - PAD.b, 1, 4); ctx.fillText(String(Math.round(T)), xOf(T), CH - PAD.b + 8); }
     ctx.fillText("growth temperature (K)", PAD.l + pw() / 2, CH - PAD.b + 26);
     ctx.textAlign = "right"; ctx.textBaseline = "middle";
     for (let lp = 0; lp >= -9; lp -= 3) { ctx.fillRect(PAD.l - 4, yOf(lp) - .5, 4, 1); ctx.fillText(lp === 0 ? "1" : "10" + subSup(String(lp)), PAD.l - 7, yOf(lp)); }
@@ -4891,7 +4893,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     const ef = efAt(h, mark.T, m);
     const tS = maxSafeT(h, mark.lp);
     const reco = tS === null ? "no ppb-safe temperature at this pressure — change the atmosphere"
-               : tS >= 2001 ? "safe across 400–2000 K at this pressure"
+               : tS >= T1() ? `safe across ${Math.round(T0())}–${Math.round(T1())} K at this pressure`
                : `stay below <b>${tS} K</b> at this pressure`;
     const pal = CL[chip[0]], bg = pal[0], ink = pal[1];
     box.innerHTML = `
