@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="39a0dc5079";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="ae8da35340";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -9720,24 +9720,27 @@ void main() {
       }
       if (!S.view || !opts.some(o => o[0] === S.view)) S.view = dpk && dpk.equflash ? "equflash" : opts[0][0];
       tabs.innerHTML = opts.map(([k, lb]) => '<button data-v="' + k + '" style="font-size:14.0px;padding:4px 10px;border-radius:999px;cursor:pointer;border:1px solid ' + (k === S.view ? TEAL : HAIR) + ';background:' + (k === S.view ? TEAL : "#fff") + ';color:' + (k === S.view ? "#fff" : INK) + '">' + lb + "</button>").join("");
-      // Model-matched bulk: the pristine host supercell is shown at the lattice of the
-      // active model's defect (default EquFlashV2), so the bulk cell == the defect cell.
-      const BULKLBL = { equflash: "EquFlashV2", chgnet: "eSEN_30M", m3gnet: "GRACE_3L", mace: "MACE_MPA0", dft: "DFT" };
-      const CELLRE = /_cell_length_[abc]\s+[-\d.]+|_cell_angle_(?:alpha|beta|gamma)\s+[-\d.]+/g;
-      const stampBulk = (bc, src) => {
-        if (!bc || !src) return bc;
-        const cp = {}; for (const tok of (String(src).match(CELLRE) || [])) { const p = tok.split(/\s+/); cp[p[0]] = p[1]; }
-        return bc.replace(CELLRE, tok => { const k = tok.split(/\s+/)[0]; return cp[k] ? k + "   " + cp[k] : tok; });
-      };
-      const bulkModelFor = v => v === "__bulk__" ? (S.bulkModel || "equflash") : (v === "init" || v.indexOf("dft") === 0) ? "dft" : v;
+      // Real per-model relaxed bulk supercells (MLFF/<host>/<model>/bulk on Anvil) now ship in
+      // cifs.__bulk__, one slot per model plus dft, so the pristine host is the SAME model that
+      // relaxed the defect - no cell stamping.
+      const BULKSLOTS = [["equflash","EquFlashV2"],["chgnet","eSEN_30M"],["m3gnet","GRACE_3L"],
+                         ["mace","MACE_MPA0"],["eqv3","eqV3_DeNS"],["mattersim","MatterSim5M"],["dft","DFT"]];
+      const BULKLBL = Object.fromEntries(BULKSLOTS);
+      const BK = (cq && cq.__bulk__) || {};
+      const haveBulk = BULKSLOTS.filter(([k]) => BK[k]);
+      const bulkOf = slot => BK[slot] || BK.dft || bulk;
+      const bulkModelFor = v => v === "__bulk__" ? (S.bulkModel || (haveBulk[0] && haveBulk[0][0]) || "dft")
+                              : (v === "init" || v.indexOf("dft") === 0) ? "dft" : v;
       const send = () => {
         const mk = bulkModelFor(S.view);
-        const bcif = (dpk && dpk[mk]) ? stampBulk(bulk, dpk[mk]) : bulk;
+        const bcif = bulkOf(mk);
         const cif = S.view === "__bulk__" ? bcif : dpk[S.view];
-        root.querySelector("#db-cap").textContent = S.view === "__bulk__" ? ("pristine host supercell — " + (BULKLBL[mk] || mk) + " cell") : (tabs.querySelector('[data-v="' + S.view + '"]') || {}).textContent + " — defect atoms highlighted";
+        root.querySelector("#db-cap").innerHTML = S.view === "__bulk__" ? ("pristine host supercell — relaxed by <b>" + esc(BULKLBL[mk] || mk) + "</b>" + (haveBulk.length > 1 ? ' &nbsp;<select id="db-bulkmodel" style="font-size:14.0px;padding:2px 6px;border:1px solid ' + HAIR + ';border-radius:7px">' + haveBulk.map(([k, lb]) => '<option value="' + k + '"' + (k === mk ? " selected" : "") + ">" + lb + "</option>").join("") + "</select>" : "")) : (tabs.querySelector('[data-v="' + S.view + '"]') || {}).textContent + " — defect atoms highlighted";
         const ifr = root.querySelector("#db-struct");
         const post = () => { try { ifr.contentWindow.postMessage({ type: "struct", cif, bulkCif: S.view === "__bulk__" ? null : bcif, nparts: ctx.dname.split("+").length }, "*"); } catch (e) {} };
         post(); setTimeout(post, 900);
+        const bsel = root.querySelector("#db-bulkmodel");
+        if (bsel) bsel.addEventListener("change", e => { S.bulkModel = e.target.value; send(); });
       };
       tabs.addEventListener("click", ev => { const b = ev.target.closest("button"); if (!b) return; S.view = b.dataset.v; if (["equflash","chgnet","m3gnet","mace"].indexOf(b.dataset.v) >= 0) S.bulkModel = b.dataset.v; cifsFor(S.mp).then(() => { render(root); }); });
       const mb = root.querySelector("#db-mov");
