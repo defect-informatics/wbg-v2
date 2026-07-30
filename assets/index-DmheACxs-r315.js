@@ -6123,7 +6123,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         dE_CBM:     ["Conduction-edge shift, &Delta;E<sub>CBM</sub>", "eV", "HSE06 − PBE; sets the top of the Fermi-level axis"]
       };
       const f4 = x => { const n = +x; if (!isFinite(n)) return esc(String(x));
-        return n.toFixed(4).replace(/0+$/,"").replace(/\.$/,""); };
+        return n.toFixed(2); };
       const cval = v => Array.isArray(v) ? v.map(f4).join(", ")
                        : (typeof v === "number" ? f4(v) : sup(sub(v)));
       function constRows(C) {
