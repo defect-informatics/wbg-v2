@@ -4764,6 +4764,15 @@ void main() {
   async function loadData() {
     if (DATA) return DATA;
     DATA = await gunzipJson("growthmap.jsongz?v=6");
+    // growthmap.m stores log10(concentration / cm^-3). Every consumer here (cellColor,
+    // the marching-squares contour at 0, sample(), maxSafeT, efAt, fmtN) expects a
+    // ppb-RELATIVE margin, i.e. log10(c) - 15. Without this shift the panel reported
+    // densities 10^15 too high (1.7e22 instead of 1.8e7), an Ef ~3.5 eV too low, an
+    // inverted safe/defect-rich verdict, and a ppb contour drawn at 1 cm^-3.
+    try { for (const _k in DATA) { const _h = DATA[_k];
+      if (_h && Array.isArray(_h.m) && !_h.__ppbShifted) {
+        _h.m = _h.m.map(r => r.map(v => (v == null ? v : v - 15)));
+        _h.__ppbShifted = 1; } } } catch (e) {}
     gunzipJson("growthmap_cifs.jsongz?v=7").then(c => { CIFS = c; renderCifSafe(); })
       .catch(() => { CIFS = {}; });
     return DATA;
