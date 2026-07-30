@@ -8700,7 +8700,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         </div>
       </div>
       <div id="sv-out"></div>
-      <div style="font-size:14.0px;color:#8a93a0;margin-top:10px;text-align:center;line-height:1.55;max-width:960px;margin-left:auto;margin-right:auto">
+      <div style="font-size:14.0px;color:#8a93a0;margin-top:10px;text-align:justify;text-justify:inter-word;line-height:1.55;max-width:960px;margin-left:auto;margin-right:auto">
         the exact solver family used across the library (all-DFT native ladders, experimental gap, N<sub>c</sub> = N<sub>v</sub> = 2.5×10<sup>19</sup>(T/300)<sup>1.5</sup> cm<sup>${MIN}3</sup>, 90-step bisection). the dopant is held at your chosen total density with its charge states in equilibrium — an exploratory “what-if”, not the equilibrium solubility solve shown on the Doping Windows tab. E<sub>F</sub> pinned at a band edge is flagged as a model ceiling.</div>
     </div>`;
     root.querySelector("#sv-host").addEventListener("change", e => { S.mp = e.target.value; S.cond = null; S.dop = ""; S.Tg = null; render(root); });
