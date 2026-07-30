@@ -6942,28 +6942,46 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     h += `<div style="font-size:14.0px;color:#5b6570;margin:2px 0 8px">${typ} · N<sub>site</sub> = ${sci(hd.ns)} cm<sup>−3</sup> · N<sub>c</sub> = N<sub>v</sub> = ${sci(D.NC300)}·(T/300)<sup>1.5</sup> cm<sup>−3</sup> · literature T<sub>syn</sub> = ${Math.round(hd.Ts)} K</div>`;
     if (isCeil) h += `<div style="font-size:14.0px;color:#b45309;margin:4px 0 8px">model ceiling — GGA level at band edge; upper bound</div>`;
     const perShow = S.quench ? R.perQ : R.per;
+    // the charge state that is lowest in energy over the largest span of E_F in [0, gap]
+    const winQ = e0 => {
+      if (!e0) return null;
+      const qs = Object.keys(e0).sort((a, b) => (+a) - (+b)), N = 2000, span = {};
+      for (let i = 0; i < N; i++) {
+        const EF = gap * (i + 0.5) / N;
+        let b = null, bv = Infinity;
+        for (const q of qs) { const v = e0[q] + (+q) * EF; if (v < bv) { bv = v; b = q; } }
+        span[b] = (span[b] || 0) + 1;
+      }
+      let best = null, bn = -1;
+      for (const q of qs) if ((span[q] || 0) > bn) { bn = span[q] || 0; best = q; }
+      return best == null ? null : { q: best, frac: bn / N };
+    };
     const rows = perShow.map((p, i) => {
       let dq = null, dv = -1;
       for (const qs of Object.keys(p.nq)) if (p.nq[qs] > dv) { dv = p.nq[qs]; dq = qs; }
-      return { name: p.name, tot: p.tot, dq, dv, i };
+      const w = winQ((R.per[i] || {}).e0);
+      return { name: p.name, tot: p.tot, dq, dv, i, wq: w && w.q, wf: w && w.frac };
     }).sort((a, b) => b.tot - a.tot);
     let tb = `<tr><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-weight:700;font-size:14.0px">defect</th>
       <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-weight:700;font-size:14.0px">E<sub>f</sub>(q=0) (eV)</th>
       <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-weight:700;font-size:14.0px">${S.quench ? "frozen total" : "total"} (cm<sup>−3</sup>)</th>
-      <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-weight:700;font-size:14.0px">dominant charge</th>
+      <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-weight:700;font-size:14.0px">dominant charge<div style="font-weight:400;color:#8a93a0">widest E<sub>F</sub> window</div></th>\n      <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-weight:700;font-size:14.0px">charge at E<sub>F</sub></th>
       <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-weight:700;font-size:14.0px">at that charge (cm<sup>−3</sup>)</th></tr>`;
     for (const r of rows) {
       const e00 = R.per[r.i].e0["0"];
       tb += `<tr><td style="padding:5px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px">${defLabel(hd, r.name)}</td>
         <td style="padding:5px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px">${e00 == null ? "—" : e00.toFixed(2)}</td>
         <td style="padding:5px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px">${sci(r.tot)}</td>
+        <td style="padding:5px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px">${r.wq == null ? "—" : qlbl(+r.wq) + ' <span style="color:#8a93a0">(' + Math.round(100 * r.wf) + '% of gap)</span>'}</td>
         <td style="padding:5px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px">${r.dq == null ? "—" : qlbl(+r.dq)}</td>
         <td style="padding:5px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px">${sci(r.dv)}</td></tr>`;
     }
+    const carr = v => (v != null && v > 0 && v < 1)
+      ? '&lt;1 <span style="color:#8a93a0">(effectively zero)</span>' : sci(v);
     tb += `<tr><td style="padding:5px 10px;font-size:14.0px;color:#5b6570">n (electrons)</td><td></td>
-      <td style="padding:5px 10px;font-size:14.0px">${sci(nShow)}</td><td style="padding:5px 10px;font-size:14.0px">−1</td><td></td></tr>`;
+      <td style="padding:5px 10px;font-size:14.0px">${carr(nShow)}</td><td></td><td style="padding:5px 10px;font-size:14.0px">−1</td><td></td></tr>`;
     tb += `<tr><td style="padding:5px 10px;font-size:14.0px;color:#5b6570">p (holes)</td><td></td>
-      <td style="padding:5px 10px;font-size:14.0px">${sci(pShow)}</td><td style="padding:5px 10px;font-size:14.0px">+1</td><td></td></tr>`;
+      <td style="padding:5px 10px;font-size:14.0px">${carr(pShow)}</td><td></td><td style="padding:5px 10px;font-size:14.0px">+1</td><td></td></tr>`;
     h += `<div style="overflow-x:auto"><table style="border-collapse:collapse;min-width:640px;margin:6px 0 10px">${tb}</table></div>`;
     h += barChart(rows.map(r => ({ label: defLabel(hd, r.name), v: r.tot, color: "#5b7ba6" }))
       .concat([{ label: "n (electrons)", v: nShow, color: "#996b1f" },
