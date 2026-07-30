@@ -9364,6 +9364,9 @@ void main() {
         GRN = "#15803d", RED = "#d0342c", HAIR = "#dbe3e6", HAIR2 = "#eef2f4",
         PANE = "#fff", INSET = "#f7f9fa", AN = "'Arial Narrow',Arial,sans-serif";
   const KB = 8.617333262e-5, EVKJ = 0.01036426965661773;
+  const ALCOCK={Al:[[9.459,-17342,-0.7927,0],[5.911,-16211,0,0],933.47],Ga:[[6.657,-14208,0,0],[6.754,-13984,-0.3413,0],302.9],In:[[5.991,-12548,0,0],[5.374,-12276,0,0],429],Mg:[[8.489,-7813,-0.8253,0],null,923],Be:[[8.042,-17020,-0.444,0],[5.786,-15731,0,0],1560],Ca:[[10.127,-9517,-1.403,0],null,1112],Sr:[[9.226,-8572,-1.1926,0],null,1042],Ba:[[12.405,-9690,-2.289,0],[4.007,-8163,0,0],1002],Sn:[[6.036,-15710,0,0],[5.262,-15332,0,0],508],Pb:[[5.643,-10143,0,0],[4.911,-9701,0,0],601],Tl:[[5.971,-9447,0,0],[5.259,-9037,0,0],577],Li:[[5.667,-8310,0,0],[5.055,-8023,0,0],453],Na:[[5.298,-5603,0,0],[4.704,-5377,0,0],371],K:[[4.961,-4646,0,0],[4.402,-4453,0,0],336]};
+  const psatAtm=(el,T)=>{const r=ALCOCK[el];if(!r||!(T>0))return null;const c=(T<r[2]||!r[1])?r[0]:r[1];if(!c)return null;return Math.pow(10,c[0]+c[1]/T+c[2]*Math.log(T)/Math.LN10+c[3]*T/1000);};
+  
   async function jz(url) {
     const r = await fetch(url, { cache: "no-cache" });
     if (!r.ok) throw new Error(url + " " + r.status);
@@ -9652,7 +9655,8 @@ void main() {
         '<canvas id="db-cbar" width="16" height="240" style="height:auto"></canvas></div>' +
         '<div style="display:flex;justify-content:space-between;font-size:14.0px;color:' + MUT2 + ';margin-top:2px"><span>400 K</span><span>Temperature (K)</span><span>2000 K</span></div>' +
         '<div id="db-read" style="background:' + INSET + ';border:1px solid ' + HAIR2 + ';font-size:14.0px;color:' + MUT + ';padding:6px 10px;text-align:center;margin-top:6px">hover the map to read (T, p, concentration)</div>';
-      p3 += centerP("Anion chemical potential mapped to (T, p) via NIST–JANAF thermochemistry for " + sub(gm.gas) + ". Dilute Boltzmann concentration (capped at site density) shown in color; the <span style=\"color:" + RED + "\">red contour</span> marks the ppb threshold (10<sup>15</sup> cm<sup>−3</sup>). The grey region lies beyond the host stability limit. Formation-energy anchor: " + anchA.src + ".");
+      p3 += centerP("Metal side: the cation reservoir is condensed metal, which has no partial pressure of its own — Δμ<sub>cation</sub> = k<sub>B</sub>T·ln(p/p<sub>sat</sub>), so Δμ = 0 is exactly the metal-rich limit (metal condenses). p<sub>sat</sub> from Alcock, Itkin &amp; Horrigan, Can. Metall. Q. <b>23</b>, 309 (1984); verified against the normal boiling point.");
+    p3 += centerP("Anion chemical potential mapped to (T, p) via NIST–JANAF thermochemistry for " + sub(gm.gas) + ". Dilute Boltzmann concentration (capped at site density) shown in color; the <span style=\"color:" + RED + "\">red contour</span> marks the ppb threshold (10<sup>15</sup> cm<sup>−3</sup>). The grey region lies beyond the host stability limit. Formation-energy anchor: " + anchA.src + ".");
     } else if (gm && SHOM[gm.gas]) {
       p3 += centerP("No computed formation energy at the " + esc(gm.anion) + "-rich vertex for this defect — the (T, p) map needs it as the anchor, so it is not drawn.");
     } else {
@@ -9662,7 +9666,7 @@ void main() {
       factRow((gm ? sub(gm.gas) : "gas") + " thermochemistry", "NIST–JANAF (Shomate)") +
       '<span id="db-ex1">' + factRow("Air sinter · 1300 K", hasMap ? "…" : "—") + "</span>" +
       '<span id="db-ex2">' + factRow("Vacuum anneal · 1000 K", hasMap ? "…" : "—") + "</span>" +
-      factRow("Host limit", gm ? "Δμ<sub>" + esc(gm.anion) + "</sub> ≥ " + f2(gm.dmu_min) + " eV (EquFlashV2 ΔH<sub>f</sub>; exp. −3.30 eV)" : "—") + "</div>";
+      factRow("Host limit", gm ? "Δμ<sub>" + esc(gm.anion) + "</sub> ≥ " + f2(gm.dmu_min) + " eV (EquFlashV2 ΔH<sub>f</sub>; exp. −3.30 eV)" : "—") +(function(){var _c=(String(formula).match(/^[A-Z][a-z]?/)||[""])[0];var _p=psatAtm(_c,1300);return _p==null?"":factRow(esc(_c)+"(g) over "+esc(_c)+" metal · 1300 K", sci(_p)+" atm (saturation)");})() + "</div>";
     h += '<div style="' + PANEL + '">' + p3 + "</div>";
     h += "</div>";
 
