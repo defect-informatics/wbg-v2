@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="f721a78524";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="0a275cf0ba";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -7946,7 +7946,7 @@ void main() {
     for (const [key, value] of Object.entries(electronic || {})) es[key.split("_")[0]] = value;
     const rows = tables.ranking.map(r => ({
       mp: r.mp_id, rank: r.rank, formula: r.formula, family: (r.family || "other"),
-      gap: r.gap, tol: r.tol, low: r.low_def, els: elsOf(r.formula),
+      gap: r.gap, pbe: (r.dft_gap != null ? r.dft_gap : null), xg: ((typeof XG6 !== "undefined" && XG6[r.mp_id] != null) ? XG6[r.mp_id] : null), tol: r.tol, low: r.low_def, els: elsOf(r.formula),
       gw: gw[r.mp_id] || null, xgap: dopwin[r.mp_id] && dopwin[r.mp_id].gap != null ? dopwin[r.mp_id].gap : null, dop: dopwin[r.mp_id] ? bestDop(dopwin[r.mp_id].dopants) : null,
       margins: bestMargin(es[r.mp_id]), assessed: !!es[r.mp_id], effectiveAssessed: !!dopwin[r.mp_id]
     }));
@@ -8000,8 +8000,8 @@ void main() {
       </div>
       <div style="border:1px solid #dfe6ec;border-radius:12px;background:#fff;padding:16px 18px;margin-bottom:14px">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:end">
-          <div><label style="${LAB}">PBE gap min (eV)</label><input id="wz-gmin" style="${IN};width:100%" placeholder="e.g. 2"></div>
-          <div><label style="${LAB}">PBE gap max (eV)</label><input id="wz-gmax" style="${IN};width:100%" placeholder="e.g. 6"></div>
+          <div><label style="${LAB}">HSE gap min (eV)</label><input id="wz-gmin" style="${IN};width:100%" placeholder="e.g. 2"></div>
+          <div><label style="${LAB}">HSE gap max (eV)</label><input id="wz-gmax" style="${IN};width:100%" placeholder="e.g. 6"></div>
           <div><label style="${LAB}">exp gap min (eV)</label><input id="wz-xmin" style="${IN};width:100%" placeholder="25 DFT hosts"></div>
           <div><label style="${LAB}">exp gap max (eV)</label><input id="wz-xmax" style="${IN};width:100%" placeholder="e.g. 6"></div>
           <div><label style="${LAB}">min tolerance (eV)</label><input id="wz-tol" style="${IN};width:100%" placeholder="e.g. 1"></div>
@@ -8064,14 +8064,12 @@ void main() {
     const TH = `text-align:left;padding:7px 10px;border-bottom:1px solid #dfe6ec;font-size:14.0px;font-weight:700;white-space:nowrap`;
     const TD = `padding:7px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px;vertical-align:top`;
     let h = `<table style="border-collapse:collapse;width:100%;min-width:920px">
-      <tr><th style="${TH}">rank</th><th style="${TH}">host</th><th style="${TH}">PBE gap (eV)</th>
-      <th style="${TH}">exp gap (eV)</th><th style="${TH}">tolerance (eV)</th><th style="${TH}">air window</th><th style="${TH}">dopability</th><th style="${TH}"></th></tr>`;
+      <tr><th style="${TH}">rank</th><th style="${TH}">host</th><th style="${TH}">Band gap (eV)</th><th style="${TH}">tolerance (eV)</th><th style="${TH}">air window</th><th style="${TH}">dopability</th><th style="${TH}"></th></tr>`;
     for (const r of hits.slice(0, 60)) {
       const air = r.gw ? `${airT(r.gw.Tm0p699)} K <span style="color:#9aa3ae">(${sub(r.gw.gas)})</span>` : "—";
       h += `<tr><td style="${TD};font-variant-numeric:tabular-nums">${r.rank}</td>
         <td style="${TD}"><b>${sub(r.formula)}</b> <span style="color:#9aa3ae;font-size:14.0px">${esc(r.family)}</span></td>
-        <td style="${TD};font-variant-numeric:tabular-nums">${r.gap.toFixed(2)}</td>
-        <td style="${TD};font-variant-numeric:tabular-nums">${r.xgap != null ? r.xgap.toFixed(2) : `<span style="color:#c2c9d2">—</span>`}</td>
+        <td style="${TD};font-variant-numeric:tabular-nums">exp ${r.xg != null ? r.xg.toFixed(2) : "—"} · HSE ${r.gap.toFixed(2)} · PBE ${r.pbe != null ? r.pbe.toFixed(2) : "—"}</td>
         <td style="${TD};font-variant-numeric:tabular-nums">+${r.tol.toFixed(2)} <span style="color:#9aa3ae;font-size:14.0px">${sub(r.low)}</span></td>
         <td style="${TD}">${air}</td><td style="${TD}">${dopCell(r)}</td>
         <td style="${TD};white-space:nowrap">
@@ -8102,6 +8100,10 @@ void main() {
 (() => {
   if (window.__wbgCompareInstalled) return;
   window.__wbgCompareInstalled = true;
+  let MEH = {};
+  (async () => { try { const r = await fetch("methods.jsongz", { cache: "no-cache" });
+    const j = await new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).json();
+    for (const h of (j.hosts || [])) { const id = String(h.host || "").split("_")[0]; if (id) MEH[id] = h; } } catch (e) {} })();
   async function gz(url) {
     const r = await fetch(url, { cache: "no-cache" });
     return await new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).json();
@@ -8159,8 +8161,8 @@ void main() {
       const P = [];
       P.push(["host", hs.map(h => `<b style="font-size:14px">${sub(h.formula)}</b><br><span style="color:#9aa3ae;font-size:14.0px">${esc(h.family)} · ${esc(h.mp)}</span>`)]);
       P.push(["rank", hs.map(h => `<b>#${h.rank}</b>`)]);
-      P.push(["PBE gap (eV)", hs.map(h => h.dft_gap != null ? h.dft_gap.toFixed(2) : `<span style="color:#9aa3ae">—</span>`)]);P.push(["HSE06 gap (eV)", hs.map(h => h.gap.toFixed(2))]);P.push(["exp. gap (eV)", hs.map(h => { const e = (typeof a8 !== "undefined" && a8[h.mp]) ? a8[h.mp] : null; return e ? `${(+e[0]).toFixed(2)}<br><span style="color:#9aa3ae;font-size:13px">${esc(String(e[1]||""))}</span>` : `<span style="color:#9aa3ae">—</span>`; })]);P.push([`ε<sub>s</sub> (static)`, hs.map(h => { const L = levels[h.mp]; if (!L) return `<span style="color:#9aa3ae">—</span>`; const e0 = L[Object.keys(L)[0]]; return e0.eps != null ? e0.eps.toFixed(2) : `<span style="color:#9aa3ae">—</span>`; })]);
-      P.push(["defect tolerance (eV)", hs.map(h => `<b style="color:#0e7490">+${h.tol.toFixed(2)}</b><br><span style="color:#9aa3ae;font-size:14.0px">${sub(h.low)}</span>`)]);
+      P.push(["band gap (eV)", hs.map(h => { const e = (typeof a8 !== "undefined" && a8[h.mp]) ? a8[h.mp] : null; const x = e ? (+e[0]).toFixed(2) : "—"; const pb = h.dft_gap != null ? h.dft_gap.toFixed(2) : "—"; return `exp ${x} · HSE ${h.gap.toFixed(2)} · PBE ${pb}` + (e ? `<br><span style="color:#9aa3ae;font-size:13px">${esc(String(e[1]||""))}</span>` : ""); })]);P.push([`ε<sub>s</sub> (static)`, hs.map(h => { const L = levels[h.mp]; if (!L) return `<span style="color:#9aa3ae">—</span>`; const e0 = L[Object.keys(L)[0]]; return e0.eps != null ? e0.eps.toFixed(2) : `<span style="color:#9aa3ae">—</span>`; })]);
+      P.push(["thermal conductivity", hs.map(h => { const m = (typeof MEH !== "undefined" && MEH[h.mp]) || null; return m && m.kappa_WmK != null ? `${m.kappa_WmK} W m<sup>−1</sup> K<sup>−1</sup>` + (m.kappa_src ? `<br><span style="color:#9aa3ae;font-size:13px">${esc(String(m.kappa_src).split(";").pop().trim())}</span>` : "") : `<span style="color:#9aa3ae">—</span>`; })]);P.push(["synthesis temperature", hs.map(h => { const m = (typeof MEH !== "undefined" && MEH[h.mp]) || null; return m && m.Tsyn_K != null ? `${Math.round(m.Tsyn_K)} K` + (m.Tsyn_src ? `<br><span style="color:#9aa3ae;font-size:13px">${esc(String(m.Tsyn_src))}</span>` : "") : `<span style="color:#9aa3ae">—</span>`; })]);P.push(["defect tolerance (eV)", hs.map(h => `<b style="color:#0e7490">+${h.tol.toFixed(2)}</b><br><span style="color:#9aa3ae;font-size:14.0px">${sub(h.low)}</span>`)]);
       P.push(["limiting native defects", hs.map(h => {
         const L = lim[h.mp]; if (!L) return "—";
         // collapse per-site variants (N_i, N_i (site 2), ...) to the lowest-energy one
