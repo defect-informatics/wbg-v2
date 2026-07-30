@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="7bad17f997";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="39a0dc5079";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -9655,7 +9655,7 @@ void main() {
       factRow((gm ? sub(gm.gas) : "gas") + " thermochemistry", "NIST–JANAF (Shomate)") +
       '<span id="db-ex1">' + factRow("Air sinter · 1300 K", hasMap ? "…" : "—") + "</span>" +
       '<span id="db-ex2">' + factRow("Vacuum anneal · 1000 K", hasMap ? "…" : "—") + "</span>" +
-      factRow("Host limit", gm ? "Δμ<sub>" + esc(gm.anion) + "</sub> ≥ " + f2(gm.dmu_min) + " eV (decomposition)" : "—") + "</div>";
+      factRow("Host limit", gm ? "Δμ<sub>" + esc(gm.anion) + "</sub> ≥ " + f2(gm.dmu_min) + " eV (EquFlashV2 ΔH<sub>f</sub>; exp. −3.30 eV)" : "—") + "</div>";
     h += '<div style="' + PANEL + '">' + p3 + "</div>";
     h += "</div>";
 
