@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="97e098a5ce";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="3e1a67842e";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -9686,6 +9686,26 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     return 0.5 * (H - T * S / 1000) * EVKJ + 0.5 * KB * T * Math.log(10) * logp;
   }
 
+  // ---- Delta-mu for a NON-GAS (monatomic vapour) reservoir -------------------------------
+  // gm.dmu_grid is Delta-mu_cation(T, p) in eV, ALREADY PER ATOM. The two 0.5 literals in
+  // muGasFull are the DIATOMIC 1/2-per-atom factor, so nothing here may be halved. The grid
+  // lives on gm.lp x gm.T and is read with sample()'s exact index convention (row = lp
+  // descending from lp[0], col = T ascending from T[0], both clamped to the last cell).
+  // drawMap's slope is written against Delta-mu_ANION, so the see-saw mu_cat + mu_an = dH_f
+  // converts it: Delta-mu_an = dmu_min - Delta-mu_cat (0 -> dmu_min = cation-rich).
+  function muGrid(gm, T, logp) {
+    const G = gm.dmu_grid, Ts = gm.T, Ls = gm.lp;
+    if (!G || !Ts || !Ls) return null;
+    const fx = Math.min(Math.max((T - Ts[0]) / (Ts[Ts.length - 1] - Ts[0]) * (Ts.length - 1), 0), Ts.length - 1 - 1e-9);
+    const fy = Math.min(Math.max((Ls[0] - logp) / (Ls[0] - Ls[Ls.length - 1]) * (Ls.length - 1), 0), Ls.length - 1 - 1e-9);
+    const i = Math.floor(fx), j = Math.floor(fy), u = fx - i, v = fy - j;
+    const d = G[j][i] * (1 - u) * (1 - v) + G[j][i + 1] * u * (1 - v) + G[j + 1][i] * (1 - u) * v + G[j + 1][i + 1] * u * v;
+    return (gm.dmu_min || 0) - d;
+  }
+  function muAt(gm, T, logp) {
+    return gm && gm.dmu_grid ? muGrid(gm, T, logp) : muGasFull(gm.gas, T, logp);
+  }
+
   // ------------------------- state -------------------------
   const S = { mp: null, def: null, cond: null, view: null };
   let hostIndex = null;
@@ -9777,23 +9797,23 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     // P3 — growth map
     let p3 = H2("Growth-condition map — vs temperature &amp; " + (gm ? sub(gm.gas) : "gas") + " pressure");
     const anchA = gm ? anchorEf(conds, gm.anion) : null;
-    const hasMap = !!(gm && SHOM[gm.gas] && anchA);
+    const hasMap = !!(gm && (SHOM[gm.gas] || gm.dmu_grid) && anchA);
     if (hasMap) {
       p3 += '<div style="display:flex;gap:6px;align-items:stretch">' +
         '<div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:14.0px;color:' + MUT2 + ';text-align:center;flex:0 0 auto">log₁₀ p(' + esc(gm.gas).replace(/(\d)/g, m => "₀₁₂₃₄₅₆₇₈₉"[+m]) + ') / atm</div>' +
         '<div style="position:relative;flex:1">' +
         '<canvas id="db-map" width="360" height="240" style="width:100%;height:auto;display:block;border:1px solid ' + HAIR2 + '"></canvas></div>' +
         '<canvas id="db-cbar" width="16" height="240" style="height:auto"></canvas></div>' +
-        '<div style="display:flex;justify-content:space-between;font-size:14.0px;color:' + MUT2 + ';margin-top:2px"><span>400 K</span><span>Temperature (K)</span><span>2000 K</span></div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:14.0px;color:' + MUT2 + ';margin-top:2px"><span>' + (gm.T ? gm.T[0] : 400) + ' K</span><span>Temperature (K)</span><span>' + (gm.T ? gm.T[gm.T.length - 1] : 2000) + ' K</span></div>' +
         '<div id="db-read" style="background:' + INSET + ';border:1px solid ' + HAIR2 + ';font-size:14.0px;color:' + MUT + ';padding:6px 10px;text-align:center;margin-top:6px">hover the map to read (T, p, concentration)</div>';
-      p3 += centerP("Anion chemical potential mapped to (T, p) via NIST–JANAF thermochemistry for " + sub(gm.gas) + ". Dilute Boltzmann concentration (capped at site density) shown in color; the <span style=\"color:" + RED + "\">red contour</span> marks the ppb threshold (10<sup>15</sup> cm<sup>−3</sup>). The grey region lies beyond the host stability limit. Formation-energy anchor: " + anchA.src + ".");
-    } else if (gm && SHOM[gm.gas]) {
+      p3 += centerP((gm.dmu_grid && !SHOM[gm.gas] ? "Cation chemical potential read from this host's precomputed Δμ(T, p) grid — metal-vapour route, no gas thermochemistry — for " : "Anion chemical potential mapped to (T, p) via NIST–JANAF thermochemistry for ") + sub(gm.gas) + ". Dilute Boltzmann concentration (capped at site density) shown in color; the <span style=\"color:" + RED + "\">red contour</span> marks the ppb threshold (10<sup>15</sup> cm<sup>−3</sup>). The grey region lies beyond the host stability limit. Formation-energy anchor: " + anchA.src + ".");
+    } else if (gm && (SHOM[gm.gas] || gm.dmu_grid)) {
       p3 += centerP("No computed formation energy at the " + esc(gm.anion) + "-rich vertex for this defect — the (T, p) map needs it as the anchor, so it is not drawn.");
     } else {
       p3 += centerP("No gas-reservoir map is defined for this host (no volatile anion species in the growth model).");
     }
     p3 += '<div style="flex:1;display:flex;flex-direction:column;justify-content:space-between">' +
-      factRow((gm ? sub(gm.gas) : "gas") + " thermochemistry", "NIST–JANAF (Shomate)") +
+      factRow((gm ? sub(gm.gas) : "gas") + " thermochemistry", (gm && gm.dmu_grid && !SHOM[gm.gas]) ? "precomputed Δμ(T, p) grid — metal-vapour route" : "NIST–JANAF (Shomate)") +
       '<span id="db-ex1">' + factRow("Air sinter · 1300 K", hasMap ? "…" : "—") + "</span>" +
       '<span id="db-ex2">' + factRow("Vacuum anneal · 1000 K", hasMap ? "…" : "—") + "</span>" +
       factRow("Host limit", gm ? "Δμ<sub>" + esc(gm.anion) + "</sub> ≥ " + f2(gm.dmu_min) + " eV (EquFlashV2 ΔH<sub>f</sub>; exp. −3.30 eV)" : "—") + "</div>";
@@ -9960,7 +9980,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     });
 
     // growth map
-    if (ctx.gm && SHOM[ctx.gm.gas] && ctx.conds.length) drawMap(root, ctx);
+    if (ctx.gm && (SHOM[ctx.gm.gas] || ctx.gm.dmu_grid) && ctx.conds.length) drawMap(root, ctx);
 
     // Ef(EF) plot
     if (root.querySelector("#db-efplot") && ctx.lrec) {
@@ -10000,7 +10020,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       return 9e9;
     })) : EfA;
     const slope = gm.dmu_min ? (EfC - EfA) / gm.dmu_min : 0;
-    const T0 = 400, T1 = 2000, L0 = 2, L1 = -12;
+    const T0 = gm.T ? gm.T[0] : 400, T1 = gm.T ? gm.T[gm.T.length - 1] : 2000, L0 = gm.lp ? gm.lp[0] : 2, L1 = gm.lp ? gm.lp[gm.lp.length - 1] : -12;
     const ns = gm.nsites || 1e22;
     const cmin = -10, cmax = Math.log10(ns) + 1;
     const col = f => {
@@ -10012,7 +10032,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       const lp = L0 + (L1 - L0) * yy / (H - 1);
       for (let xx = 0; xx < W; xx++) {
         const T = T0 + (T1 - T0) * xx / (W - 1);
-        const mu = muGasFull(gm.gas, T, lp);
+        const mu = muAt(gm, T, lp);
         if (mu < gm.dmu_min) { g2.fillStyle = "#c8cfd4"; g2.fillRect(xx, yy, 1, 1); logc.push(null); continue; }
         const Ef = EfA + slope * Math.min(0, mu);
         const c = Math.min(ns, ns * Math.exp(-Math.max(0, Ef) / (KB * T)));
@@ -10034,7 +10054,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       const r = cv.getBoundingClientRect();
       const xx = (ev.clientX - r.left) / r.width, yy = (ev.clientY - r.top) / r.height;
       const T = Math.round(T0 + (T1 - T0) * xx), lp = (L0 + (L1 - L0) * yy).toFixed(1);
-      const mu = muGasFull(gm.gas, T, +lp);
+      const mu = muAt(gm, T, +lp);
       let txt = "T = " + T + " K · log<sub>10</sub> p = " + lp;
       if (mu < gm.dmu_min) txt += " · beyond host stability";
       else {
@@ -10045,7 +10065,8 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       root.querySelector("#db-read").innerHTML = txt;
     };
     const exAt = (T, lp) => {
-      const mu = muGasFull(gm.gas, T, lp);
+      if (gm.dmu_grid && (T < gm.T[0] || T > gm.T[gm.T.length - 1])) return "outside the computed (T, p) grid";
+      const mu = muAt(gm, T, lp);
       if (mu == null || mu < gm.dmu_min) return "beyond stability";
       const Ef = EfA + slope * Math.min(0, mu);
       return "n ≈ " + sci(Math.min(ns, ns * Math.exp(-Math.max(0, Ef) / (KB * T)))) + " cm<sup>−3</sup>";
