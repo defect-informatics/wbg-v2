@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="5fe287afbe";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="97e098a5ce";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -6824,12 +6824,22 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     const s1 = solveEF(Tg, gap, defs, ns, null);
     const kTs = D.KB * Tg, N0Tg = D.NC300 * Math.pow(Tg / 300.0, 1.5);
     const per = defs.map(d => {
-      const nq = {}; let tot = 0;
-      for (const qs of Object.keys(d.e0)) {
-        const v = Math.min(ns, ns * Math.exp(-Math.max(d.e0[qs] + (+qs) * s1.EF, D.EXPCLAMP) / kTs));
-        nq[qs] = v; tot += v;
+      /* p.nq bug (found 2026-07-31): capping EACH charge state at ns made every state with
+         energy <= 0 equal to ns, so the display's strict `>` kept the FIRST key - and
+         Object.keys orders ["0","1","2","-2","-1"], integer-like keys first, so "0" always
+         won and every defect read neutral. Normalise the Boltzmann weights and cap only the
+         TOTAL, exactly as distrib() already does for the quenched branch. */
+      const E = {}; let Emin = Infinity;
+      for (const qs of Object.keys(d.e0)) { E[qs] = d.e0[qs] + (+qs) * s1.EF; if (E[qs] < Emin) Emin = E[qs]; }
+      const X = {}; let Z = 0, raw = 0;
+      for (const qs of Object.keys(E)) {
+        const w = Math.exp(-(E[qs] - Emin) / kTs);
+        X[qs] = w; Z += w;
+        raw += ns * Math.exp(-Math.max(E[qs], D.EXPCLAMP) / kTs);
       }
-      return { name: d.name, e0: d.e0, nq, tot: Math.min(ns, tot) };
+      const tot = Math.min(ns, raw), nq = {};
+      for (const qs of Object.keys(X)) nq[qs] = Z > 0 ? tot * X[qs] / Z : 0;
+      return { name: d.name, e0: d.e0, nq, tot };
     });
     const res = {
       Tg, skipped, EFg: s1.EF, clampG: s1.clamped, per,
@@ -8659,12 +8669,22 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     const s1 = solveEF(Tg, gap, defs, ns, frozen1);
     const kTg = D.KB * Tg, N0Tg = D.NC300 * Math.pow(Tg / 300.0, 1.5);
     const per = defs.map(d => {
-      const nq = {}; let tot = 0;
-      for (const qs of Object.keys(d.e0)) {
-        const v = Math.min(ns, ns * Math.exp(-Math.max(d.e0[qs] + (+qs) * s1.EF, D.EXPCLAMP) / kTg));
-        nq[qs] = v; tot += v;
+      /* p.nq bug (found 2026-07-31): capping EACH charge state at ns made every state with
+         energy <= 0 equal to ns, so the display's strict `>` kept the FIRST key - and
+         Object.keys orders ["0","1","2","-2","-1"], integer-like keys first, so "0" always
+         won and every defect read neutral. Normalise the Boltzmann weights and cap only the
+         TOTAL, exactly as distrib() already does for the quenched branch. */
+      const E = {}; let Emin = Infinity;
+      for (const qs of Object.keys(d.e0)) { E[qs] = d.e0[qs] + (+qs) * s1.EF; if (E[qs] < Emin) Emin = E[qs]; }
+      const X = {}; let Z = 0, raw = 0;
+      for (const qs of Object.keys(E)) {
+        const w = Math.exp(-(E[qs] - Emin) / kTg);
+        X[qs] = w; Z += w;
+        raw += ns * Math.exp(-Math.max(E[qs], D.EXPCLAMP) / kTg);
       }
-      return { name: d.name, e0: d.e0, nq, tot: Math.min(ns, tot), dopant: false };
+      const tot = Math.min(ns, raw), nq = {};
+      for (const qs of Object.keys(X)) nq[qs] = Z > 0 ? tot * X[qs] / Z : 0;
+      return { name: d.name, e0: d.e0, nq, tot, dopant: false };
     });
     if (dop) per.push({ name: dop.name, e0: dop.e0, nq: distrib(dop, s1.EF, kTg, Ndop), tot: Ndop, dopant: true });
     const R = {
