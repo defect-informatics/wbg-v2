@@ -9727,8 +9727,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     const conds = CONDS.filter(c => c.mp_id === S.mp && c.defect === dname);
     const hasDFT = conds.some(c => c.Ef_DFT != null);
     const lv = (LEVELS[S.mp] || {});
-    const lvKey = Object.keys(lv).find(k => k.replace(/\s*\((?:site\s*)?\d+\)\s*$/, "") === S.def) ||
-                  Object.keys(lv).find(k => k === S.def);
+    const stripS = n => String(n).replace(/\s*\((?:site\s*)?\d+\)\s*$/, "");
+    const lvKey = Object.keys(lv).find(k => k === S.def) ||
+                  Object.keys(lv).find(k => stripS(k) === S.def) ||
+                  Object.keys(lv).find(k => stripS(k) === stripS(S.def));
     const lrec = lvKey ? lv[lvKey] : null;
     const gm = GAS[S.mp] || null;
     const formula = hostIndex[S.mp];
@@ -9742,7 +9744,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       '<span style="font-size:14.0px;color:' + MUT + '">' + sub(dname) + " in " + sub(formula) + "</span>" +
       (S.fixed && S.clicked && normN(S.clicked) !== normN(dname) ?
         '<span style="font-size:13.5px;color:' + MUT2 + '">clicked ' + sub(S.clicked) +
-        ' \u2014 showing ' + sub(dname) + ', the DFT-backed representative of this defect; every value in this panel is ' + sub(dname) + " data</span>" : "") +
+        ' \u2014 showing ' + sub(dname) + ', the representative of this defect; every value in this panel is ' + sub(dname) + " data</span>" : "") +
+      (lvKey && normN(lvKey) !== normN(dname) ?
+        '<span style="font-size:13.5px;color:' + MUT2 + '">charge ladder from ' + sub(lvKey) +
+        ', an equivalent site variant \u2014 ' + sub(dname) + ' has no DFT ladder of its own</span>' : "") +
       '<span style="margin-left:auto;display:flex;gap:8px;align-items:center">' +
       (S.fixed ? "" :
         '<select id="db-host" style="font-size:14.0px;padding:6px 10px;border:1px solid ' + HAIR + ';border-radius:8px">' +
@@ -10204,7 +10209,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           const H = await xh();
           let mp = null;
           for (const f of Object.keys(H)) if (normN(f) === normN(host)) { mp = H[f][0][0]; break; }
-          const rr = mp && ROWS.find(r => r.mp_id === mp && (normN(r.defect) === normN(defect) || normN(r.base) === normN(defect)));
+          const rr = mp && ((typeof rawDef === "string" ? ROWS.find(r => r.mp_id === mp && normN(r.defect) === normN(rawDef)) : null) || ROWS.find(r => r.mp_id === mp && (normN(r.defect) === normN(defect) || normN(r.base) === normN(defect))));
           if (!mp || !rr) { box.innerHTML = '<div style="text-align:center;color:' + MUT2 + ';padding:34px;font-family:' + AN + '">no dashboard data for this defect.</div>'; return; }
           S.mp = mp; S.def = rr.base; S.clicked = (typeof rawDef === "string" ? rawDef : defect); S.cond = null; S.view = null; S.fixed = true;
           render(box);
@@ -10258,7 +10263,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       const H = await xh();
       let mp = null;
       for (const f of Object.keys(H)) if (normN(f) === normN(host)) { mp = H[f][0][0]; break; }
-      const rr = mp && ROWS.find(r => r.mp_id === mp && (normN(r.defect) === normN(defect) || normN(r.base) === normN(defect)));
+      const rr = mp && ((typeof rawDef === "string" ? ROWS.find(r => r.mp_id === mp && normN(r.defect) === normN(rawDef)) : null) || ROWS.find(r => r.mp_id === mp && (normN(r.defect) === normN(defect) || normN(r.base) === normN(defect))));
       if (!mp || !rr) { box.innerHTML = '<div style="text-align:center;color:' + MUT2 + ';padding:34px;font-family:' + AN + '">no dashboard data for this defect.</div>'; return; }
       S.mp = mp; S.def = rr.base; S.clicked = (typeof rawDef === "string" ? rawDef : defect); S.cond = null; S.view = null; S.fixed = true;
       render(box);
