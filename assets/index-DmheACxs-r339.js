@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="558d4b375a";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="c0862d330a";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -9901,7 +9901,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       const opts = [["__bulk__", "Bulk host"]];
       if (dpk) {
         if (dpk.init) opts.push(["init", "Unrelaxed"]);
-        for (const [k, lb] of [["equflash", "Relaxed (EquFlashV2)"], ["chgnet", "Relaxed (eSEN_30M)"], ["m3gnet", "Relaxed (GRACE_3L)"], ["mace", "Relaxed (MACE_MPA0)"],
+        for (const [k, lb] of [["equflash", "Relaxed (EquFlashV2)"], ["chgnet", "Relaxed (eSEN_30M)"], ["m3gnet", "Relaxed (GRACE_3L)"], ["mace", "Relaxed (MACE_MPA0)"], ["eqv3", "Relaxed (eqV3_DeNS)"], ["mattersim", "Relaxed (MatterSim5M)"],
                                ["dft", "DFT (q=0)"], ["dft_qm1", "DFT (q=−1)"], ["dft_qm2", "DFT (q=−2)"], ["dft_qp1", "DFT (q=+1)"], ["dft_qp2", "DFT (q=+2)"]])
           if (dpk[k]) opts.push([k, lb]);
       }
@@ -9929,7 +9929,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         const bsel = root.querySelector("#db-bulkmodel");
         if (bsel) bsel.addEventListener("change", e => { S.bulkModel = e.target.value; send(); });
       };
-      tabs.addEventListener("click", ev => { const b = ev.target.closest("button"); if (!b) return; S.view = b.dataset.v; if (["equflash","chgnet","m3gnet","mace"].indexOf(b.dataset.v) >= 0) S.bulkModel = b.dataset.v; cifsFor(S.mp).then(() => { render(root); }); });
+      tabs.addEventListener("click", ev => { const b = ev.target.closest("button"); if (!b) return; S.view = b.dataset.v; if (["equflash","chgnet","m3gnet","mace","eqv3","mattersim"].indexOf(b.dataset.v) >= 0) S.bulkModel = b.dataset.v; cifsFor(S.mp).then(() => { render(root); }); });
       const mb = root.querySelector("#db-mov");
       if (mb) mb.onclick = async () => {
         mb.disabled = true; const t0 = mb.textContent; mb.textContent = "loading movie…";
@@ -10413,7 +10413,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     '<div class="wag-brand" style="font-size:30px;font-weight:800;color:#0f2a42;margin:2px 0 2px">Kosmos <span style="font-size:19px;font-weight:500;color:#5b6570">(κόσμος)</span></div>' +
     '<div class="wag-title" style="font-size:15px">The Wide-Bandgap Semiconductor Defect Library</div>' +
     '<div class="wag-sub">growth windows, charge-transition levels, and dopability across the wide-bandgap semiconductor space</div>' +
-    '<div class="wag-chips"><span class="wag-chip"><b class="wag-cnt" data-cnt="1">0</b> host (AlN)</span><span class="wag-chip"><b class="wag-cnt" data-cnt="84">0</b> defects</span>' +
+    '<div class="wag-chips"><span class="wag-chip"><b class="wag-cnt" data-cnt="2">0</b> hosts (AlN, SiC)</span><span class="wag-chip"><b class="wag-cnt" data-cnt="264">0</b> defects</span>' +
     '<span class="wag-chip"><b class="wag-cnt" data-cnt="6">0</b> foundation MLFFs</span><span class="wag-chip"><b>DFT</b> charge levels</span></div>' +
     '<div id="wbg-auth-wait" class="wag-spin" aria-label="checking session"></div>' +
     '<button id="wbg-auth-btn" class="wag-btn">' + GLOGO + '<span>Sign in with Google</span></button>' +
@@ -11123,4 +11123,19 @@ fetch("./defects.jsongz",{cache:"no-cache"}).then(function(r){return r.arrayBuff
 var ds=new DecompressionStream("gzip"),st=new Response(new Blob([b]).stream().pipeThrough(ds));
 return st.json();}).then(function(rows){var t=fmt(rows),tries=0,
 iv=setInterval(function(){if(paint(t)||++tries>40)clearInterval(iv);},250);}).catch(function(){});
+})();
+;(function(){if(window.__wbgGateChips)return;window.__wbgGateChips=1;
+fetch("./defects.jsongz",{cache:"no-cache"}).then(function(r){return r.arrayBuffer();}).then(function(b){
+var ds=new DecompressionStream("gzip"),st=new Response(new Blob([b]).stream().pipeThrough(ds));
+return st.json();}).then(function(rows){
+var h={};rows.forEach(function(r){var p=String(r.host).split("_");h[p[1]||p[0]]=1;});
+var fs=Object.keys(h).sort(),ho=fs.length,nd=rows.length,tries=0;
+var iv=setInterval(function(){tries++;
+var c=document.querySelectorAll(".wag-chips .wag-chip");
+if(c.length>=2){
+var b1=c[0].querySelector(".wag-cnt"),b2=c[1].querySelector(".wag-cnt");
+if(b1&&b1.getAttribute("data-cnt")!==String(ho))c[0].innerHTML='<b class="wag-cnt" data-cnt="'+ho+'">'+ho.toLocaleString("en-US")+'</b> host'+(ho===1?"":"s")+' ('+fs.join(", ")+')';
+if(b2&&b2.getAttribute("data-cnt")!==String(nd))c[1].innerHTML='<b class="wag-cnt" data-cnt="'+nd+'">'+nd.toLocaleString("en-US")+'</b> defects';
+}
+if(tries>24)clearInterval(iv);},250);}).catch(function(){});
 })();
