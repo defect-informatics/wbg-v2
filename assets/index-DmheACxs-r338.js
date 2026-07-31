@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="4c95bd1563";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="558d4b375a";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -6797,8 +6797,12 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           }
       } else {
         for (let i = 0; i < defs.length; i++) {
-          const d = defs[i], Nd = frozen[i], X = {}; let Z = 0;
-          for (const qs of Object.keys(d.e0)) { X[qs] = Math.exp(-Math.max(d.e0[qs] + (+qs) * EF, D.EXPCLAMP) / kT); Z += X[qs]; }
+          /* r332 fix, frozen branch (r338): shift by the minimum energy instead of leaning on
+             the clamp - it ties every state below -2 eV (key order then picks q=0) and a
+             deep ladder can underflow Z to 0. Ratios are reference-free: shipped numbers unchanged. */
+          const d = defs[i], Nd = frozen[i], X = {}; let Z = 0, Em = Infinity;
+          for (const qs of Object.keys(d.e0)) { const Ei = d.e0[qs] + (+qs) * EF; if (Ei < Em) Em = Ei; }
+          for (const qs of Object.keys(d.e0)) { X[qs] = Math.exp(-(d.e0[qs] + (+qs) * EF - Em) / kT); Z += X[qs]; }
           if (Z <= 0) continue;
           for (const qs of Object.keys(X)) { const qq = +qs; if (qq) q += qq * Nd * X[qs] / Z; }
         }
@@ -6851,8 +6855,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       res.n3 = D.NC300 * Math.exp(-(gap - s2.EF) / kT);
       res.p3 = D.NC300 * Math.exp(-s2.EF / kT);
       res.perQ = per.map((p, i) => {
-        const X = {}; let Z = 0;
-        for (const qs of Object.keys(p.e0)) { X[qs] = Math.exp(-Math.max(p.e0[qs] + (+qs) * s2.EF, D.EXPCLAMP) / kT); Z += X[qs]; }
+        /* r338: Emin-shifted weights, same r332 fix (see solveEF frozen branch) */
+        const X = {}; let Z = 0, Em = Infinity;
+        for (const qs of Object.keys(p.e0)) { const Ei = p.e0[qs] + (+qs) * s2.EF; if (Ei < Em) Em = Ei; }
+        for (const qs of Object.keys(p.e0)) { X[qs] = Math.exp(-(p.e0[qs] + (+qs) * s2.EF - Em) / kT); Z += X[qs]; }
         const nq = {};
         for (const qs of Object.keys(X)) nq[qs] = Z > 0 ? frozen[i] * X[qs] / Z : 0;
         return { name: p.name, nq, tot: frozen[i] };
@@ -8636,8 +8642,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           q += qq * Math.min(ns, ns * Math.exp(-Math.max(d.e0[qs] + qq * EF, D.EXPCLAMP) / kT));
         }
       for (const f of frozenPairs) {
-        const X = {}; let Z = 0;
-        for (const qs of Object.keys(f.e0)) { X[qs] = Math.exp(-Math.max(f.e0[qs] + (+qs) * EF, D.EXPCLAMP) / kT); Z += X[qs]; }
+        /* r338: Emin-shifted weights, same r332 fix (see solveEF frozen branch) */
+        const X = {}; let Z = 0, Em = Infinity;
+        for (const qs of Object.keys(f.e0)) { const Ei = f.e0[qs] + (+qs) * EF; if (Ei < Em) Em = Ei; }
+        for (const qs of Object.keys(f.e0)) { X[qs] = Math.exp(-(f.e0[qs] + (+qs) * EF - Em) / kT); Z += X[qs]; }
         if (Z <= 0) continue;
         for (const qs of Object.keys(X)) { const qq = +qs; if (qq) q += qq * f.N * X[qs] / Z; }
       }
@@ -8653,8 +8661,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     return { EF: 0.5 * (lo + hi), clamped: false };
   }
   function distrib(d, EF, kT, N) { // frozen-total charge redistribution
-    const X = {}; let Z = 0;
-    for (const qs of Object.keys(d.e0)) { X[qs] = Math.exp(-Math.max(d.e0[qs] + (+qs) * EF, D.EXPCLAMP) / kT); Z += X[qs]; }
+    /* r338: Emin-shifted weights, same r332 fix (see solveEF frozen branch) */
+    const X = {}; let Z = 0, Em = Infinity;
+    for (const qs of Object.keys(d.e0)) { const Ei = d.e0[qs] + (+qs) * EF; if (Ei < Em) Em = Ei; }
+    for (const qs of Object.keys(d.e0)) { X[qs] = Math.exp(-(d.e0[qs] + (+qs) * EF - Em) / kT); Z += X[qs]; }
     const nq = {};
     for (const qs of Object.keys(X)) nq[qs] = Z > 0 ? N * X[qs] / Z : 0;
     return nq;
@@ -8774,16 +8784,34 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     }
     h += `</div>`;
     const rows = (S.quench ? R.perQ : R.per).slice().sort((a, b) => b.tot - a.tot).slice(0, 10);
+    /* site-wide convention (2026-07-31): "dominant charge" = the state lowest in
+       energy over the WIDEST span of E_F in [0, gap], from the ladder alone; the
+       population pick at the solved E_F stays as its own "charge at E_F" column. */
+    const E0 = {}; for (const x of R.per) E0[x.name] = x.e0;
+    const winQ = e0 => {
+      if (!e0) return null;
+      const qs = Object.keys(e0).sort((a, b) => (+a) - (+b)), N = 2000, span = {};
+      for (let i = 0; i < N; i++) {
+        const EF = R.gap * (i + 0.5) / N;
+        let b = null, bv = Infinity;
+        for (const q of qs) { const v = e0[q] + (+q) * EF; if (v < bv) { bv = v; b = q; } }
+        span[b] = (span[b] || 0) + 1;
+      }
+      let best = null, bn = -1;
+      for (const q of qs) if ((span[q] || 0) > bn) { bn = span[q] || 0; best = q; }
+      return best == null ? null : { q: best, frac: bn / N };
+    };
     const TH = `text-align:left;padding:6px 10px;border-bottom:1px solid #dfe6ec;font-size:14.0px;font-weight:700`;
     const TD = `padding:6px 10px;border-bottom:1px solid #f0f3f6;font-size:14.0px`;
     h += `<div style="border:1px solid #dfe6ec;border-radius:12px;background:#fff;padding:6px 10px;overflow-x:auto">
-      <table style="border-collapse:collapse;width:100%;min-width:560px">
-      <tr><th style="${TH}">defect</th><th style="${TH}">total (cm<sup>${MIN}3</sup>)</th><th style="${TH}">dominant charge</th><th style="${TH}">at that charge (cm<sup>${MIN}3</sup>)</th></tr>`;
+      <table style="border-collapse:collapse;width:100%;min-width:640px">
+      <tr><th style="${TH}">defect</th><th style="${TH}">total (cm<sup>${MIN}3</sup>)</th><th style="${TH}">dominant charge<div style="font-weight:400;color:#8a93a0">widest E<sub>F</sub> window</div></th><th style="${TH}">charge at E<sub>F</sub></th><th style="${TH}">at that charge (cm<sup>${MIN}3</sup>)</th></tr>`;
     for (const p of rows) {
       let bq = null, bv = -1;
       for (const qs of Object.keys(p.nq)) if (p.nq[qs] > bv) { bv = p.nq[qs]; bq = qs; }
+      const w = winQ(E0[p.name]);
       h += `<tr style="${p.dopant ? "background:#f2fafb" : ""}"><td style="${TD}">${sub(svPretty(p.name, rows.map(r => r.name)))}${p.dopant ? ` <span style="color:#0e7490;font-size:14.0px;font-weight:700">dopant</span>` : ""}</td>
-        <td style="${TD}">${sci(p.tot)}</td><td style="${TD};font-variant-numeric:tabular-nums">${qlbl(+bq)}</td><td style="${TD}">${sci(bv)}</td></tr>`;
+        <td style="${TD}">${sci(p.tot)}</td><td style="${TD};font-variant-numeric:tabular-nums">${w == null ? "—" : qlbl(+w.q) + ' <span style="color:#8a93a0">(' + Math.round(100 * w.frac) + '% of gap)</span>'}</td><td style="${TD};font-variant-numeric:tabular-nums">${qlbl(+bq)}</td><td style="${TD}">${sci(bv)}</td></tr>`;
     }
     h += `</table></div>`;
     if (R.clampG || R.clampQ) h += `<div style="color:#b45309;font-size:14.0px;margin-top:8px;text-align:center">⚠ E<sub>F</sub> reached a band edge — model ceiling (GGA level at band edge); treat carriers as an upper bound.</div>`;
