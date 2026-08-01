@@ -7176,7 +7176,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   const CIFS = {};            // mp -> cifs payload
   const CACHE = window.__wbgXanesCache = window.__wbgXanesCache || {};   // mp|defect|el|q -> result (window-scoped: survives tab switches)
   const JOBS = window.__wbgXanesJobs = window.__wbgXanesJobs || {};      // in-flight FEFF jobs, reattached on return
-  let panel = null, busy = false;
+  let panel = null;
 
   async function jz(url) {
     const r = await fetch(url); if (!r.ok) throw new Error(url + " " + r.status);
@@ -7327,7 +7327,6 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     const box = panel.querySelector("#xan-out");
     const stat = panel.querySelector("#xan-stat");
     if (CACHE[ck]) { render(CACHE[ck], el, edge); return; }
-    busy = true;
     try {
       let dEnt, bEnt;
       if (direct) { dEnt = [direct.d, "calculator"]; bEnt = [direct.b, "calculator"]; }
@@ -7363,7 +7362,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       render(fin, el, edge);
     } catch (e) {
       stat.innerHTML = (e && e.name === "AbortError") ? "cancelled." : '<span style="color:#b45309">' + esc(e.message || e) + "</span>";
-    } finally { busy = false; const _cb = panel && panel.querySelector("#xan-cancel"); if (_cb) _cb.style.display = "none"; }
+    } finally { const _cb = panel && panel.querySelector("#xan-cancel"); if (_cb) _cb.style.display = "none"; }
 
     function render(fin, el, edge) {
       stat.textContent = "";
@@ -7448,7 +7447,6 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     }).catch(() => {});
     p.querySelector("#xan-close").onclick = () => { p.remove(); panel = null; };
     p.querySelector("#xan-go").onclick = async () => {
-      if (busy) return;
       const el = p.querySelector("#xan-el").value, qq = p.querySelector("#xan-q").value;
       let edg = (p.querySelector("#xan-edge")||{value:"K"}).value;
       if (edg === "K" && ELARR.indexOf(el) >= ELARR.indexOf("Ce")) {
