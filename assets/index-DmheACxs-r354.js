@@ -5691,7 +5691,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         '<label>Your Materials Project API key <span class="muted">(required)</span></label>' +
         '<input type="password" id="c_key" placeholder="paste your free MP API key">' +
         '<div class="hint">Free at <a href="https://materialsproject.org/api" target="_blank" rel="noopener">materialsproject.org/api</a>. Used only to download competing phases; not stored.</div>' +
-        '<label>MLFF model (v1 calculator backend — the six-MLFF set is not deployed there yet)</label><select id="c_model"><option value="CHGNet">CHGNet</option><option value="MACE-MP-0">MACE-MP-0</option></select>' +
+        '<label>MLFF model (v1 calculator backend — the six-MLFF set is not deployed there yet)</label><select id="c_model"><option value="CHGNet">CHGNet</option><option value="MACE-MPA-0">MACE-MPA-0</option></select>' +
         '<label>Specific defects <span class="muted">(optional)</span></label>' +
         '<textarea id="c_custom" placeholder="V_Na, Cl_i, Cl_i+O_i"></textarea>' +
         '<div class="hint">V<sub>X</sub> (vacancy), X<sub>i</sub> (interstitial), A<sub>B</sub> (A on a B site). Join a complex with +.</div>' +
@@ -7176,6 +7176,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   const CIFS = {};            // mp -> cifs payload
   const CACHE = window.__wbgXanesCache = window.__wbgXanesCache || {};   // mp|defect|el|q -> result (window-scoped: survives tab switches)
   const JOBS = window.__wbgXanesJobs = window.__wbgXanesJobs || {};      // in-flight FEFF jobs, reattached on return
+  const LAST = window.__wbgXanesLast = window.__wbgXanesLast || {};      // mp|defect -> {el,edge,quality} last used -- reopening the same defect restores it so a running/cached job is found again instead of silently duplicated
   let panel = null;
 
   async function jz(url) {
@@ -7430,6 +7431,19 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       '<div id="xan-out" style="margin-top:6px"></div>' +
       '<div style="font-size:14.0px;color:' + MUT + ';margin-top:8px;text-align:justify;line-height:1.45">bulk and defect spectra are computed live on a public compute space; ' +
       "first run of a defect takes the stated time, repeats are cached in this session.</div>";
+    const lastKey = (direct ? "calc" : mp) + "|" + defectDisplay;
+    const lp = LAST[lastKey];
+    if (lp) {
+      const eSel = p.querySelector("#xan-edge"), qSel = p.querySelector("#xan-q");
+      if (eSel) eSel.value = lp.edge;
+      if (qSel) qSel.value = lp.quality;
+    }
+    if (direct) {
+      if (lp && els.indexOf(lp.el) >= 0) p.querySelector("#xan-el").value = lp.el;
+      const ck0 = "calc|" + defectDisplay + "|" + p.querySelector("#xan-el").value + "|" +
+                  p.querySelector("#xan-edge").value + "|" + p.querySelector("#xan-q").value;
+      if (CACHE[ck0] || JOBS[ck0]) p.querySelector("#xan-go").click();
+    }
     if (!direct) cifs(mp).then(pay => {
       const key = resolveDefect(pay, defectDisplay);
       if (!key) return;
@@ -7444,6 +7458,9 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         sel.insertBefore(opt, sel.firstChild);
       }
       if (dels.length) sel.value = dels[0];
+      if (lp && [...sel.options].some(o => o.value === lp.el)) sel.value = lp.el;
+      const ck0 = mp + "|" + key + "|" + sel.value + "|" + p.querySelector("#xan-edge").value + "|" + p.querySelector("#xan-q").value;
+      if (CACHE[ck0] || JOBS[ck0]) p.querySelector("#xan-go").click();
     }).catch(() => {});
     p.querySelector("#xan-close").onclick = () => { p.remove(); panel = null; };
     p.querySelector("#xan-go").onclick = async () => {
@@ -7458,6 +7475,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         p.querySelector("#xan-stat").innerHTML = '<span style="color:#b45309">L edges are only meaningful for heavier absorbers (Z ≥ 20) — use the K edge for ' + esc(el) + "</span>";
         return;
       }
+      LAST[lastKey] = { el, edge: edg, quality: qq };
       if (direct) { compute("calc", defectDisplay, el, edg, qq, direct, direct.bels || []); return; }
       const pay = await cifs(mp);
       const key = resolveDefect(pay, defectDisplay);
