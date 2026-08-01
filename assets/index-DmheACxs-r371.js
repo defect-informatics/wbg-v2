@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="33d88117ce";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="6522e67ca0";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -11151,7 +11151,8 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     var h = '<div style="margin:4px 0;color:'+INK+'">E<sub>f</sub><sup>q</sup>(E<sub>F</sub>) = (E<sub>tot</sub> &minus; E<sub>bulk</sub>) + &Sigma;(&minus;n<sub>i</sub>&mu>_i</sub>) + q(E<sub>VBM</sub> + E<sub>F</sub>) + E<sub>corr</sub> + q&middot;&Delta;E<sub>VBM</sub></div>';
     h = h.replace("&mu>_i</sub>","&mu;<sub>i</sub>");
     h += consts;
-    h += '<div style="margin:4px 0">&mu; ('+used+'): ';
+    var vtx = (H.vertex_of||{})[used];
+    h += '<div style="margin:4px 0">&mu; at the '+used+' vertex'+(vtx ? ' (bounding phases: '+vtx.split("+").join(" + ")+')' : '')+': ';
     var mt = 0; Object.keys(C.mu_eV||{}).forEach(function(el){ h += sb("&Delta;n_"+el)+' = '+C.dn[el]+', &mu;('+el+') = '+f4(C.mu_eV[el])+' eV &nbsp; '; });
     h += '&rArr; &Sigma;(&minus;n&mu;) = <b>'+f4(C.mu_term_eV)+' eV</b></div>';
     h += '<div style="overflow-x:auto;padding-right:14px"><table style="border-collapse:collapse;white-space:nowrap">';
@@ -11173,7 +11174,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     var M = (H.mlff||{})[model]; if (!M) return '<div style="color:'+MUT+'">no '+model+' data for this host.</div>';
     var D = M[def]; if (!D) return '<div style="color:'+MUT+'">no '+model+' record for this defect (unconverged runs are excluded, never shown).</div>';
     var C = D[cond] || D[Object.keys(D)[0]]; var used = D[cond] ? cond : Object.keys(D)[0];
-    var h = '<div style="margin:4px 0;color:'+INK+'">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials; vertex: '+used+')</div>';
+    var h = '<div style="margin:4px 0;color:'+INK+'">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials; '+used+' vertex'+(C.vertex ? ', bounding phases '+C.vertex.split("+").join(" + ") : '')+')</div>';
     h += '<div style="overflow-x:auto"><table style="border-collapse:collapse;white-space:nowrap">';
     [["E<sub>defect</sub> (eV)",f4(C.E_def_eV)],["E<sub>bulk</sub> (eV)",f4(C.E_bulk_eV)],["&Sigma;(&minus;n&mu;) (eV)",f4(C.mu_term_eV)],["E<sub>f</sub> (eV)","<b>"+f4(C.Ef_eV)+"</b>"]].forEach(function(rw){
       h += '<tr><td style="padding:2px 10px;color:'+MUT+'">'+rw[0]+'</td><td style="padding:2px 10px;text-align:right">'+rw[1]+"</td></tr>"; });
