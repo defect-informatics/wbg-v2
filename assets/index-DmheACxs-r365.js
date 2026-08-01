@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="1ed7306708";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="0e1914ae68";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -11116,4 +11116,117 @@ if(el.getAttribute("data-n")!==v){var n2=el.cloneNode(false);n2.removeAttribute(
 n2.setAttribute("data-n",v);n2.textContent=v;p.replaceChild(n2,el);}}}
 patch();
 new MutationObserver(function(){patch();}).observe(document.body,{childList:true,subtree:true});});}).catch(function(){});
+})();
+
+;(function(){
+  if (window.__wbgCalcInstalled) return; window.__wbgCalcInstalled = 1;
+  var AN = "'Arial Narrow', Arial, sans-serif", TEAL = "#0e7987", INK = "#233", MUT = "#6b7b83", HAIR = "#d7e0e4";
+  var MODELS = [["dft","DFT (PBE, charge-corrected)"],["equflashv2","EquFlashV2"],["esen-30m-oam","eSEN_30M"],
+                ["grace-3l","GRACE_3L"],["mace-mpa-0","MACE_MPA0"],["eqv3-dens-oam","eqV3_DeNS"],["mattersim-5m","MatterSim5M"]];
+  var CALC = null;
+  async function data(){
+    if (CALC) return CALC;
+    var bf = await (await fetch("calc.jsongz")).arrayBuffer();
+    CALC = JSON.parse(await new Response(new Blob([bf]).stream().pipeThrough(new DecompressionStream("gzip"))).text());
+    return CALC;
+  }
+  function f4(x){ return (x===null||x===undefined) ? "&mdash;" : (+x).toFixed(4); }
+  function sb(s){ return String(s).replace(/_([A-Za-z0-9]+)/g, "<sub>$1</sub>"); }
+  function ctx(){
+    var box = document.querySelector(".wbg-dashx");
+    var mp = box && (box.getAttribute("data-mp")||"").trim();
+    var hostSel = document.getElementById("db-host");
+    if (!mp && hostSel){ var m2 = (hostSel.options[hostSel.selectedIndex]||{}).text||""; var mm = m2.match(/mp-\d+/); if (mm) mp = mm[0]; }
+    var defSel = document.getElementById("db-def");
+    var def = defSel ? defSel.value : (box ? (box.getAttribute("data-defect")||"") : "");
+    var condSel = document.getElementById("db-cond");
+    var cond = condSel ? (condSel.options[condSel.selectedIndex]||{}).text || condSel.value : "";
+    cond = String(cond).trim(); if (cond && !/-rich$/.test(cond)) cond += "-rich";
+    return {mp: mp, def: def.trim(), cond: cond};
+  }
+  function dftBlock(H, def, cond){
+    var D = (H.dft||{})[def]; if (!D) return '<div style="color:'+MUT+'">no DFT charge data for this defect (MLFF-screened only).</div>';
+    var C = D[cond] || D[Object.keys(D)[0]]; var used = D[cond] ? cond : Object.keys(D)[0];
+    var h = '<div style="margin:4px 0;color:'+INK+'">E<sub>f</sub><sup>q</sup>(E<sub>F</sub>) = (E<sub>tot</sub> &minus; E<sub>bulk</sub>) + &Sigma;(&minus;n<sub>i</sub>&mu>_i</sub>) + q(E<sub>VBM</sub> + E<sub>F</sub>) + E<sub>corr</sub> + q&middot;&Delta;E<sub>VBM</sub></div>';
+    h = h.replace("&mu>_i</sub>","&mu;<sub>i</sub>");
+    h += '<div style="color:'+MUT+'">E<sub>bulk</sub> = '+f4(H.E_bulk_dft_eV)+' eV &middot; E<sub>VBM</sub> = '+f4(H.VBM_eV)+' eV &middot; gap PBE '+f4(H.gap_PBE_eV)+' / HSE '+f4(H.gap_HSE_eV)+' eV &middot; &Delta;E<sub>VBM</sub> = '+f4(H.dVBM_eV)+' eV &middot; &epsilon; '+H.eps_static+' &middot; &alpha;<sub>M</sub> '+H.alpha_M+' &middot; L '+f4(H.L_A_ang)+' &Aring; &middot; vertex: '+used+'</div>';
+    h += '<div style="margin:4px 0">&mu; ('+used+'): ';
+    var mt = 0; Object.keys(C.mu_eV||{}).forEach(function(el){ h += sb("&Delta;n_"+el)+' = '+C.dn[el]+', &mu;('+el+') = '+f4(C.mu_eV[el])+' eV &nbsp; '; });
+    h += '&rArr; &Sigma;(&minus;n&mu;) = <b>'+f4(C.mu_term_eV)+' eV</b></div>';
+    h += '<div style="overflow-x:auto"><table style="border-collapse:collapse;white-space:nowrap">';
+    h += '<tr>'+["q","E<sub>tot</sub> (eV)","E<sub>lat</sub>","&minus;q&middot;&Delta;V","E<sub>corr</sub>","FNV check","verdict","q&middot;&Delta;E<sub>VBM</sub>","E<sub>f</sub> @ E<sub>F</sub>=VBM"].map(function(c){return '<th style="border-bottom:1px solid '+HAIR+';padding:2px 10px;text-align:right;font-weight:600">'+c+"</th>";}).join("")+"</tr>";
+    ["2","1","0","-1","-2"].forEach(function(q){
+      var r = (C.q||{})[q];
+      h += '<tr><td style="padding:2px 10px;text-align:right">'+(q>0?"+"+q:q)+"</td>";
+      if (!r){ h += '<td colspan="8" style="padding:2px 10px;color:'+MUT+'">not run</td></tr>'; return; }
+      var fnv = (r.FNV_total_eV===null||r.FNV_total_eV===undefined) ? '<span style="color:'+MUT+'">no cross-check</span>' : f4(r.FNV_total_eV);
+      var vd = r.verdict ? r.verdict.replace(" (>0.1 eV)","") : (q==="0" ? "&mdash;" : '<span style="color:'+MUT+'">&mdash;</span>');
+      [f4(r.E_tot_eV), q==="0"?"&mdash;":f4(r.E_lat_eV), q==="0"?"&mdash;":f4(r.minus_q_dV_eV), q==="0"?"&mdash;":f4(r.E_corr_eV), q==="0"?"&mdash;":fnv, vd, f4(r.q_dVBM_eV), "<b>"+f4(r.Ef_at_VBM_eV)+"</b>"].forEach(function(v){ h += '<td style="padding:2px 10px;text-align:right">'+v+"</td>"; });
+      h += "</tr>";
+    });
+    h += "</table></div>";
+    h += '<div style="color:'+MUT+';margin-top:4px">A PROVISIONAL verdict means the Makov&ndash;Payne and FNV corrections disagree by &gt;0.1 eV; that level is flagged in the tables. "not run" = this charge state was not part of the DFT ladder; nothing is interpolated.</div>';
+    return h;
+  }
+  function mlffBlock(H, model, def, cond){
+    var M = (H.mlff||{})[model]; if (!M) return '<div style="color:'+MUT+'">no '+model+' data for this host.</div>';
+    var D = M[def]; if (!D) return '<div style="color:'+MUT+'">no '+model+' record for this defect (unconverged runs are excluded, never shown).</div>';
+    var C = D[cond] || D[Object.keys(D)[0]]; var used = D[cond] ? cond : Object.keys(D)[0];
+    var h = '<div style="margin:4px 0;color:'+INK+'">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials; vertex: '+used+')</div>';
+    h += '<div style="overflow-x:auto"><table style="border-collapse:collapse;white-space:nowrap">';
+    [["E<sub>defect</sub> (eV)",f4(C.E_def_eV)],["E<sub>bulk</sub> (eV)",f4(C.E_bulk_eV)],["&Sigma;(&minus;n&mu;) (eV)",f4(C.mu_term_eV)],["E<sub>f</sub> (eV)","<b>"+f4(C.Ef_eV)+"</b>"]].forEach(function(rw){
+      h += '<tr><td style="padding:2px 10px;color:'+MUT+'">'+rw[0]+'</td><td style="padding:2px 10px;text-align:right">'+rw[1]+"</td></tr>"; });
+    h += "</table></div>";
+    var mus = String(C.mu_terms||"").split("|").filter(Boolean).map(function(t){ var p=t.split(":"); var nx=(p[1]||"").split("x"); return sb(p[0])+": n = "+nx[0]+", &mu; = "+nx[1]+" eV"; });
+    if (mus.length) h += '<div style="margin:4px 0">&mu; terms: '+mus.join(" &nbsp;&middot;&nbsp; ")+"</div>";
+    if (C.limiting) h += '<div style="color:'+MUT+'">limiting phase: '+C.limiting+"</div>";
+    var chk = C.E_def_eV - C.E_bulk_eV + C.mu_term_eV;
+    h += '<div style="color:'+MUT+'">check: '+f4(C.E_def_eV)+' &minus; ('+f4(C.E_bulk_eV)+') + '+f4(C.mu_term_eV)+' = '+f4(chk)+' eV</div>';
+    return h;
+  }
+  async function render(pane, srcSel){
+    var c = ctx(); pane.innerHTML = '<div style="color:'+MUT+';padding:8px">loading raw data&hellip;</div>';
+    try {
+      var A = await data(); var H = (A.hosts||{})[c.mp];
+      if (!H || !c.def){ pane.innerHTML = '<div style="color:'+MUT+';padding:8px">no calculation record for this selection.</div>'; return; }
+      var mode = srcSel.value;
+      pane.innerHTML = '<div style="font-family:'+AN+';font-size:14px;padding:8px 10px;text-align:left">' +
+        '<div style="font-weight:600;color:'+INK+';margin-bottom:2px">'+sb(c.def)+' &mdash; every number below is read from the campaign record, not recomputed</div>' +
+        (mode==="dft" ? dftBlock(H, c.def, c.cond) : mlffBlock(H, mode, c.def, c.cond)) + "</div>";
+    } catch(e){ pane.innerHTML = '<div style="color:#a33;padding:8px">calc.jsongz failed to load: '+e+"</div>"; }
+  }
+  function install(row){
+    if (row.querySelector("#db-calc")) return;
+    var mv = row.querySelector("#db-mov"); if (!mv) return;
+    var bt = document.createElement("button"); bt.id = "db-calc"; bt.textContent = "Σ calculation (raw data)";
+    bt.setAttribute("style", mv.getAttribute("style")); bt.style.color = TEAL;
+    row.appendChild(bt);
+    var wrap = document.createElement("div"); wrap.id = "db-calcpane";
+    wrap.style.cssText = "display:none;margin:6px auto 10px;max-width:980px;border:1px solid "+HAIR+";border-radius:8px;background:#fff;text-align:left";
+    var bar = document.createElement("div");
+    bar.style.cssText = "display:flex;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid "+HAIR+";font-family:"+AN+";font-size:14px;color:"+MUT;
+    bar.innerHTML = 'source: ';
+    var sel = document.createElement("select"); sel.id = "db-calcsrc";
+    sel.style.cssText = "font-family:"+AN+";font-size:14px;padding:2px 6px";
+    MODELS.forEach(function(m){ var o=document.createElement("option"); o.value=m[0]; o.textContent=m[1]; sel.appendChild(o); });
+    bar.appendChild(sel);
+    var pane = document.createElement("div");
+    wrap.appendChild(bar); wrap.appendChild(pane);
+    row.parentNode.insertBefore(wrap, row.nextSibling);
+    bt.addEventListener("click", function(){
+      var open = wrap.style.display !== "none";
+      wrap.style.display = open ? "none" : "block";
+      if (!open) render(pane, sel);
+    });
+    sel.addEventListener("change", function(){ render(pane, sel); });
+    ["db-def","db-cond","db-host"].forEach(function(id){
+      document.addEventListener("change", function(ev){
+        if (ev.target && ev.target.id === id && wrap.style.display !== "none") render(pane, sel);
+      }, true);
+    });
+  }
+  new MutationObserver(function(){
+    var mv = document.getElementById("db-mov");
+    if (mv && mv.parentElement) install(mv.parentElement);
+  }).observe(document.body || document.documentElement, {childList: true, subtree: true});
 })();
