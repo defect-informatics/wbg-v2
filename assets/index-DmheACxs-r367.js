@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="0e1914ae68";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="33d88117ce";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -9758,7 +9758,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       : esc(pieces[0]) + " on " + esc(pieces[1]) + " site";
     p1 += '<div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;margin-top:4px">' +
       factRow("Host site", sub(character)) +
-      factRow("Family · PBE gap", esc(drow.family) + " · " + f2(drow.band_gap) + " eV") +
+      factRow("Family · gap", esc(drow.family) + ' · <span id="db-gaps">' + f2(drow.band_gap) + " eV (HSE)</span>") +
       factRow("Site density", gm && gm.nsites ? sci(gm.nsites) + " cm<sup>−3</sup>" : "—") +
       factRow("Hull distance", (drow.e_above_hull != null ? (1000 * drow.e_above_hull).toFixed(0) : "—") + " meV/atom") +
       factRow("Best growth condition", esc(drow.best_condition || "—")) +
@@ -11243,8 +11243,29 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       }, true);
     });
   }
+  var EXPG = {"mp-661":  ["6.02", "M. Feneberg et al., Phys. Rev. B 82, 075208 (2010)"],
+              "mp-804":  ["3.39", "Ioffe NSM Archive; audited host table"],
+              "mp-11714":["3.26", "T. Kimoto, Jpn. J. Appl. Phys. 54, 040103 (2015)"],
+              "mp-830":  ["3.23", "G. Ram\u00edrez-Flores et al., Phys. Rev. B 50, 8433 (1994)"]};
+  async function fillGaps(){
+    var sp = document.getElementById("db-gaps");
+    if (!sp || sp.dataset.filled) return;
+    var box = document.querySelector(".wbg-dashx");
+    var mp = box && (box.getAttribute("data-mp") || "").trim();
+    if (!mp) return;
+    try {
+      var A = await data(), H = (A.hosts || {})[mp];
+      if (!H || H.gap_PBE_eV == null) return;
+      sp.dataset.filled = "1";
+      var t = "PBE " + (+H.gap_PBE_eV).toFixed(2) + " \u00b7 HSE " + (+H.gap_HSE_eV).toFixed(2);
+      var x = EXPG[mp];
+      if (x) { t += " \u00b7 exp " + x[0]; sp.title = "exp gap: " + x[1] + " (host.md audited row); PBE/HSE: this campaign, calc.jsongz"; }
+      sp.innerHTML = t + " eV";
+    } catch (e) {}
+  }
   new MutationObserver(function(){
     var mv = document.getElementById("db-mov");
     if (mv && mv.parentElement) install(mv.parentElement);
+    fillGaps();
   }).observe(document.body || document.documentElement, {childList: true, subtree: true});
 })();
