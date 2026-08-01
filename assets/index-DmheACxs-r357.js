@@ -5691,7 +5691,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         '<label>Your Materials Project API key <span class="muted">(required)</span></label>' +
         '<input type="password" id="c_key" placeholder="paste your free MP API key">' +
         '<div class="hint">Free at <a href="https://materialsproject.org/api" target="_blank" rel="noopener">materialsproject.org/api</a>. Used only to download competing phases; not stored.</div>' +
-        '<label>MLFF model (v1 calculator backend — the six-MLFF set is not deployed there yet)</label><select id="c_model"><option value="CHGNet">CHGNet</option><option value="MACE-MP-0">MACE-MP-0</option></select>' +
+        '<label>MLFF model (v1 calculator backend — the six-MLFF set is not deployed there yet)</label><select id="c_model"><option value="CHGNet">CHGNet</option><option value="MACE-MPA-0">MACE-MPA-0</option><option value="ORB">ORB</option></select>' +
         '<label>Specific defects <span class="muted">(optional)</span></label>' +
         '<textarea id="c_custom" placeholder="V_Na, Cl_i, Cl_i+O_i"></textarea>' +
         '<div class="hint">V<sub>X</sub> (vacancy), X<sub>i</sub> (interstitial), A<sub>B</sub> (A on a B site). Join a complex with +.</div>' +
