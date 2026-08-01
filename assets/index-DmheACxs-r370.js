@@ -11145,7 +11145,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     return {mp: mp, def: def.trim(), cond: cond};
   }
   function dftBlock(H, def, cond){
-    var consts = '<div style="color:'+MUT+'">E<sub>bulk</sub> = '+f4(H.E_bulk_dft_eV)+' eV &middot; E<sub>VBM</sub> = '+f4(H.VBM_eV)+' eV &middot; gap PBE '+f4(H.gap_PBE_eV)+' / HSE '+f4(H.gap_HSE_eV)+' eV &middot; band-edge correction (Stage K, potential-aligned): &Delta;E<sub>VBM</sub> = '+f4(H.dVBM_eV)+' eV, &Delta;E<sub>CBM</sub> = '+f4(H.dCBM_eV)+' eV &middot; &epsilon; '+H.eps_static+' &middot; &alpha;<sub>M</sub> '+H.alpha_M+' &middot; L '+f4(H.L_A_ang)+' &Aring;</div>';
+    var consts = '<div style="color:'+MUT+'">E<sub>bulk</sub> = '+f4(H.E_bulk_dft_eV)+' eV &middot; E<sub>VBM</sub> = '+f4(H.VBM_eV)+' eV &middot; gap PBE '+f4(H.gap_PBE_eV)+' / HSE '+f4(H.gap_HSE_eV)+' eV &middot; band-edge correction (potential-aligned HSE&minus;PBE shifts): &Delta;E<sub>VBM</sub> = '+f4(H.dVBM_eV)+' eV, &Delta;E<sub>CBM</sub> = '+f4(H.dCBM_eV)+' eV &middot; &epsilon; '+H.eps_static+' &middot; &alpha;<sub>M</sub> '+H.alpha_M+' &middot; L '+f4(H.L_A_ang)+' &Aring;</div>';
     var D = (H.dft||{})[def]; if (!D) return '<div style="color:'+INK+';font-weight:600;padding:6px 0">No DFT data for this defect (MLFF-screened only).</div>';
     var C = D[cond] || D[Object.keys(D)[0]]; var used = D[cond] ? cond : Object.keys(D)[0];
     var h = '<div style="margin:4px 0;color:'+INK+'">E<sub>f</sub><sup>q</sup>(E<sub>F</sub>) = (E<sub>tot</sub> &minus; E<sub>bulk</sub>) + &Sigma;(&minus;n<sub>i</sub>&mu>_i</sub>) + q(E<sub>VBM</sub> + E<sub>F</sub>) + E<sub>corr</sub> + q&middot;&Delta;E<sub>VBM</sub></div>';
