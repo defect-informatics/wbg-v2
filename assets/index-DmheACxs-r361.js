@@ -5613,7 +5613,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   var HF = "https://habibur1003266-wbg-defect-calculator.hf.space";
 
   // persist across re-injects (React can wipe & recreate #wbg-calc-root)
-  var LAST=null, UPCIF=null, SELROW=null, INFLIGHT=null;
+  var LAST=null, UPCIF=null, SELROW=null, INFLIGHT=null, FORM=null;
 
   var _plotlyP = null;
   function ensurePlotly(){
@@ -5849,6 +5849,19 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
   function wire(root){
     var q=function(id){ return root.querySelector("#"+id); };
+    var FORM_TXT=["c_key","c_model","c_sc","c_fmax","c_steps","c_eah","c_dopants","c_custom","c_mpe"];
+    var FORM_CHK=["c_vac","c_anti","c_int","c_dop","c_env"];
+    function saveForm(){
+      var f={}; FORM_TXT.forEach(function(id){ var el=q(id); if(el) f[id]=el.value; });
+      FORM_CHK.forEach(function(id){ var el=q(id); if(el) f[id]=el.checked; });
+      FORM=f;
+    }
+    function restoreForm(){
+      if(!FORM) return;
+      FORM_TXT.forEach(function(id){ var el=q(id); if(el && FORM[id]!=null) el.value=FORM[id]; });
+      FORM_CHK.forEach(function(id){ var el=q(id); if(el && FORM[id]!=null) el.checked=FORM[id]; });
+    }
+    FORM_TXT.concat(FORM_CHK).forEach(function(id){ var el=q(id); if(el) el.addEventListener("input", saveForm); });
     var uploadedCif=null, upInst=null, defInst=null, playTimer=null;
     var lastResult=null, currentRow=null, frames=[], fi=0;
 
@@ -6030,7 +6043,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       mvUnmount(upInst); mvUnmount(defInst); upInst=null; defInst=null;
       mvClear(q("c_upview")); mvClear(q("c_defview"));
       uploadedCif=null; lastResult=null; currentRow=null; frames=[]; fi=0;
-      UPCIF=null; LAST=null; SELROW=null; INFLIGHT=null;
+      UPCIF=null; LAST=null; SELROW=null; INFLIGHT=null; FORM=null;
       try{ q("c_file").value=""; }catch(_){}
       q("c_custom").value=""; q("c_dopants").value="";
       q("c_upview").innerHTML='<pre class="muted">Upload a CIF to preview the structure here.</pre>';
@@ -6046,6 +6059,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
     // restore prior structure + results after a re-inject (React wipes the tab)
     if(UPCIF){ uploadedCif=UPCIF; mvUnmount(upInst); upInst=mvMount(q("c_upview"), UPCIF, null, 1, 300); }
+    restoreForm();
     if(INFLIGHT){
       attachToInflight(INFLIGHT);
     } else if(LAST){
