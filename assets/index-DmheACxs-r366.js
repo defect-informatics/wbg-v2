@@ -11130,7 +11130,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     CALC = JSON.parse(await new Response(new Blob([bf]).stream().pipeThrough(new DecompressionStream("gzip"))).text());
     return CALC;
   }
-  function f4(x){ return (x===null||x===undefined) ? "&mdash;" : (+x).toFixed(4); }
+  function f4(x){ return (x===null||x===undefined) ? "&mdash;" : (+x).toFixed(2); }
   function sb(s){ return String(s).replace(/_([A-Za-z0-9]+)/g, "<sub>$1</sub>"); }
   function ctx(){
     var box = document.querySelector(".wbg-dashx");
@@ -11153,8 +11153,8 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     h += '<div style="margin:4px 0">&mu; ('+used+'): ';
     var mt = 0; Object.keys(C.mu_eV||{}).forEach(function(el){ h += sb("&Delta;n_"+el)+' = '+C.dn[el]+', &mu;('+el+') = '+f4(C.mu_eV[el])+' eV &nbsp; '; });
     h += '&rArr; &Sigma;(&minus;n&mu;) = <b>'+f4(C.mu_term_eV)+' eV</b></div>';
-    h += '<div style="overflow-x:auto"><table style="border-collapse:collapse;white-space:nowrap">';
-    h += '<tr>'+["q","E<sub>tot</sub> (eV)","E<sub>lat</sub>","&minus;q&middot;&Delta;V","E<sub>corr</sub>","FNV check","verdict","q&middot;&Delta;E<sub>VBM</sub>","E<sub>f</sub> @ E<sub>F</sub>=VBM"].map(function(c){return '<th style="border-bottom:1px solid '+HAIR+';padding:2px 10px;text-align:right;font-weight:600">'+c+"</th>";}).join("")+"</tr>";
+    h += '<div style="overflow-x:auto;padding-right:14px"><table style="border-collapse:collapse;white-space:nowrap">';
+    h += '<tr>'+["q","E<sub>tot</sub> (eV)","E<sub>lat</sub>","&minus;q&middot;&Delta;V","E<sub>corr</sub>","FNV check","verdict","q&middot;&Delta;E<sub>VBM</sub>","E<sub>f</sub>@VBM (eV)"].map(function(c){return '<th style="border-bottom:1px solid '+HAIR+';padding:2px 10px;text-align:right;font-weight:600">'+c+"</th>";}).join("")+"</tr>";
     ["2","1","0","-1","-2"].forEach(function(q){
       var r = (C.q||{})[q];
       h += '<tr><td style="padding:2px 10px;text-align:right">'+(q>0?"+"+q:q)+"</td>";
@@ -11184,6 +11184,23 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     h += '<div style="color:'+MUT+'">check: '+f4(C.E_def_eV)+' &minus; ('+f4(C.E_bulk_eV)+') + '+f4(C.mu_term_eV)+' = '+f4(chk)+' eV</div>';
     return h;
   }
+  function typeWrite(pane){
+    var it = document.createNodeIterator(pane, NodeFilter.SHOW_TEXT), nodes = [], nd;
+    while ((nd = it.nextNode())) if (nd.textContent.trim()) nodes.push([nd, nd.textContent]);
+    var total = nodes.reduce(function(a, p){ return a + p[1].length; }, 0);
+    var chunk = Math.max(2, Math.ceil(total / 240));           // whole pane in ~2 s, ONE cycle
+    nodes.forEach(function(p){ p[0].textContent = ""; });
+    var i = 0, j = 0;
+    var tick = setInterval(function(){
+      var left = chunk;
+      while (left > 0 && i < nodes.length){
+        var full = nodes[i][1], take = Math.min(left, full.length - j);
+        j += take; left -= take; nodes[i][0].textContent = full.slice(0, j);
+        if (j >= full.length){ i++; j = 0; }
+      }
+      if (i >= nodes.length) clearInterval(tick);
+    }, 8);
+  }
   async function render(pane, srcSel){
     var c = ctx(); pane.innerHTML = '<div style="color:'+MUT+';padding:8px">loading raw data&hellip;</div>';
     try {
@@ -11193,6 +11210,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       pane.innerHTML = '<div style="font-family:'+AN+';font-size:14px;padding:8px 10px;text-align:left">' +
         '<div style="font-weight:600;color:'+INK+';margin-bottom:2px">'+sb(c.def)+' &mdash; every number below is read from the campaign record, not recomputed</div>' +
         (mode==="dft" ? dftBlock(H, c.def, c.cond) : mlffBlock(H, mode, c.def, c.cond)) + "</div>";
+      typeWrite(pane);
     } catch(e){ pane.innerHTML = '<div style="color:#a33;padding:8px">calc.jsongz failed to load: '+e+"</div>"; }
   }
   function install(row){
