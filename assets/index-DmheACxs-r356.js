@@ -7539,6 +7539,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     }
   };
   function scan() {
+    if (panel && !document.body.contains(panel)) document.body.appendChild(panel);
     const heads = document.querySelectorAll('div[style*="letter-spacing"][style*="flex"]');
     for (const d of heads) {
       if (d.children.length > 5) {
