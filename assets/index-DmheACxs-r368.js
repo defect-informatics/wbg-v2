@@ -11145,16 +11145,17 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     return {mp: mp, def: def.trim(), cond: cond};
   }
   function dftBlock(H, def, cond){
-    var D = (H.dft||{})[def]; if (!D) return '<div style="color:'+MUT+'">no DFT charge data for this defect (MLFF-screened only).</div>';
+    var consts = '<div style="color:'+MUT+'">E<sub>bulk</sub> = '+f4(H.E_bulk_dft_eV)+' eV &middot; E<sub>VBM</sub> = '+f4(H.VBM_eV)+' eV &middot; gap PBE '+f4(H.gap_PBE_eV)+' / HSE '+f4(H.gap_HSE_eV)+' eV &middot; band-edge correction (Stage K, potential-aligned): &Delta;E<sub>VBM</sub> = '+f4(H.dVBM_eV)+' eV, &Delta;E<sub>CBM</sub> = '+f4(H.dCBM_eV)+' eV &middot; &epsilon; '+H.eps_static+' &middot; &alpha;<sub>M</sub> '+H.alpha_M+' &middot; L '+f4(H.L_A_ang)+' &Aring;</div>';
+    var D = (H.dft||{})[def]; if (!D) return consts + '<div style="color:'+MUT+';margin-top:4px">no DFT charge ladder was run for this defect (MLFF-screened only) - the host-level DFT record above applies to every defect of this host; per-model raw energies are under the MLFF sources.</div>';
     var C = D[cond] || D[Object.keys(D)[0]]; var used = D[cond] ? cond : Object.keys(D)[0];
     var h = '<div style="margin:4px 0;color:'+INK+'">E<sub>f</sub><sup>q</sup>(E<sub>F</sub>) = (E<sub>tot</sub> &minus; E<sub>bulk</sub>) + &Sigma;(&minus;n<sub>i</sub>&mu>_i</sub>) + q(E<sub>VBM</sub> + E<sub>F</sub>) + E<sub>corr</sub> + q&middot;&Delta;E<sub>VBM</sub></div>';
     h = h.replace("&mu>_i</sub>","&mu;<sub>i</sub>");
-    h += '<div style="color:'+MUT+'">E<sub>bulk</sub> = '+f4(H.E_bulk_dft_eV)+' eV &middot; E<sub>VBM</sub> = '+f4(H.VBM_eV)+' eV &middot; gap PBE '+f4(H.gap_PBE_eV)+' / HSE '+f4(H.gap_HSE_eV)+' eV &middot; &Delta;E<sub>VBM</sub> = '+f4(H.dVBM_eV)+' eV &middot; &epsilon; '+H.eps_static+' &middot; &alpha;<sub>M</sub> '+H.alpha_M+' &middot; L '+f4(H.L_A_ang)+' &Aring; &middot; vertex: '+used+'</div>';
+    h += consts;
     h += '<div style="margin:4px 0">&mu; ('+used+'): ';
     var mt = 0; Object.keys(C.mu_eV||{}).forEach(function(el){ h += sb("&Delta;n_"+el)+' = '+C.dn[el]+', &mu;('+el+') = '+f4(C.mu_eV[el])+' eV &nbsp; '; });
     h += '&rArr; &Sigma;(&minus;n&mu;) = <b>'+f4(C.mu_term_eV)+' eV</b></div>';
     h += '<div style="overflow-x:auto;padding-right:14px"><table style="border-collapse:collapse;white-space:nowrap">';
-    h += '<tr>'+["q","E<sub>tot</sub> (eV)","E<sub>lat</sub>","&minus;q&middot;&Delta;V","E<sub>corr</sub>","FNV check","verdict","q&middot;&Delta;E<sub>VBM</sub>","E<sub>f</sub>@VBM (eV)"].map(function(c){return '<th style="border-bottom:1px solid '+HAIR+';padding:2px 10px;text-align:right;font-weight:600">'+c+"</th>";}).join("")+"</tr>";
+    h += '<tr>'+["q","E<sub>tot</sub> (eV)","E<sub>lat</sub>","&minus;q&middot;&Delta;V","E<sub>corr</sub> (used)","FNV (cross-check)","verdict","q&middot;&Delta;E<sub>VBM</sub>","E<sub>f</sub>@VBM (eV)"].map(function(c){return '<th style="border-bottom:1px solid '+HAIR+';padding:2px 10px;text-align:right;font-weight:600">'+c+"</th>";}).join("")+"</tr>";
     ["2","1","0","-1","-2"].forEach(function(q){
       var r = (C.q||{})[q];
       h += '<tr><td style="padding:2px 10px;text-align:right">'+(q>0?"+"+q:q)+"</td>";
@@ -11165,7 +11166,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       h += "</tr>";
     });
     h += "</table></div>";
-    h += '<div style="color:'+MUT+';margin-top:4px">A PROVISIONAL verdict means the Makov&ndash;Payne and FNV corrections disagree by &gt;0.1 eV; that level is flagged in the tables. "not run" = this charge state was not part of the DFT ladder; nothing is interpolated.</div>';
+    h += '<div style="color:'+MUT+';margin-top:4px">The correction USED in every E<sub>f</sub> curve is Makov&ndash;Payne plus potential alignment: E<sub>corr</sub> = E<sub>lat</sub> &minus; q&middot;&Delta;V (the three columns to its left). FNV (Freysoldt&ndash;Van de Walle) is an INDEPENDENT cross-check and never enters E<sub>f</sub>; "no cross-check" means FNV could not be evaluated for that state (ESP grid mismatch) &mdash; the correction itself is still applied. A PROVISIONAL verdict means the two schemes disagree by &gt;0.1 eV and that level is flagged in the tables. "not run" = this charge state was not part of the DFT ladder; nothing is interpolated.</div>';
     return h;
   }
   function mlffBlock(H, model, def, cond){
