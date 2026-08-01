@@ -5612,7 +5612,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   var HF = "https://habibur1003266-wbg-defect-calculator.hf.space";
 
   // persist across re-injects (React can wipe & recreate #wbg-calc-root)
-  var LAST=null, UPCIF=null, SELROW=null;
+  var LAST=null, UPCIF=null, SELROW=null, INFLIGHT=null;
 
   var _plotlyP = null;
   function ensurePlotly(){
@@ -5966,38 +5966,54 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     function onEvt(ev,p){
       if(ev!=="generating") return;
       try{ var msg=JSON.parse(JSON.parse(p)[0]); var pct=Math.max(0,Math.min(100,Math.round((msg.progress||0)*100)));
+        if(INFLIGHT){ INFLIGHT.pct=pct; INFLIGHT.desc=msg.desc||"Computing"; INFLIGHT.log=msg.log; }
         q("c_bar").style.display="block"; q("c_barfill").style.width=pct+"%";
         desc('<span class="spin"></span>'+fmtLog(msg.desc||"Computing")+' — '+pct+'%');
         if(msg.log && msg.log.length){ q("c_log").style.display="block"; q("c_log").innerHTML=fmtLogAll(msg.log); q("c_log").scrollTop=q("c_log").scrollHeight; }
       }catch(e){}
     }
 
-    async function run(cif){
-      stopMovie(); mvUnmount(defInst); defInst=null;
-      busy(true); q("c_table").innerHTML=""; q("c_pd").innerHTML=""; q("c_pdwrap").style.display="none";
+    function attachToInflight(job){
+      busy(true);
+      q("c_table").innerHTML=""; q("c_pd").innerHTML=""; q("c_pdwrap").style.display="none";
       q("c_defwrap").style.display="none"; q("c_log").style.display="none"; q("c_log").textContent="";
-      q("c_bar").style.display="block"; q("c_barfill").style.width="0%";
-      desc('<span class="spin"></span>Submitting to the compute backend…');
-      var data=[ cif||"", q("c_model").value, q("c_key").value,
-        num(q("c_sc").value,12), num(q("c_fmax").value,0.1), num(q("c_steps").value,60),
-        num(q("c_eah").value,0.02), q("c_dopants").value,
-        q("c_vac").checked, q("c_anti").checked, q("c_int").checked, q("c_dop").checked,
-        q("c_custom").value, q("c_env").checked, num(q("c_mpe").value,8) ];
-      try{
-        var r=await fetch(HF+"/gradio_api/call/compute",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:data})});
-        var j=await r.json();
-        if(!j.event_id){ desc("Could not start the job."); busy(false); return; }
-        desc('<span class="spin"></span>Computing — this can take several minutes. Keep this tab open and in the foreground (switching away can interrupt the job).');
-        var res=await readSSE(HF+"/gradio_api/call/compute/"+j.event_id, onEvt);
-        lastResult=res; LAST=res;   // capture FIRST — if the tab was backgrounded/navigated, the result still persists and shows on return
+      q("c_bar").style.display="block"; q("c_barfill").style.width=(job.pct||0)+"%";
+      desc('<span class="spin"></span>'+fmtLog(job.desc||"Submitting to the compute backend…")+' — keeps running in the background if you switch tabs; come back here to see the result.');
+      if(job.log && job.log.length){ q("c_log").style.display="block"; q("c_log").innerHTML=fmtLogAll(job.log); }
+      job.p.then(function(res){
+        if(INFLIGHT===job) INFLIGHT=null;
+        lastResult=res; LAST=res;
         try{ q("c_barfill").style.width="100%"; }catch(_){}
         renderTable(root, res.columns, res.rows, selectDefect);
         if((res.pd_entries&&res.pd_entries.length) || res.pd_plotly_json || res.plot_b64){ q("c_pdwrap").style.display="block"; renderPD(res); }
         if(res.log && res.log.length){ q("c_log").style.display="block"; q("c_log").innerHTML=fmtLogAll(res.log); }
         if(res.rows && res.rows.length){ selectDefect(res.rows[0]); var tr0=root.querySelector("#c_table tbody tr"); if(tr0) tr0.classList.add("sel"); }
         desc(res.ok ? "Done — click a defect row to inspect its relaxed structure." : '<span style="color:#b91c1c">'+fmtLog(res.error || "Finished with an issue — see log below.")+'</span>');
-      }catch(e){ desc('<span style="color:#b91c1c">Request failed: '+esc(String(e))+'</span>'); }
-      busy(false);
+        busy(false);
+      }, function(e){
+        if(INFLIGHT===job) INFLIGHT=null;
+        desc('<span style="color:#b91c1c">Request failed: '+esc(String(e))+'</span>');
+        busy(false);
+      });
+    }
+
+    async function run(cif){
+      if(INFLIGHT){ attachToInflight(INFLIGHT); return; }
+      stopMovie(); mvUnmount(defInst); defInst=null;
+      var data=[ cif||"", q("c_model").value, q("c_key").value,
+        num(q("c_sc").value,12), num(q("c_fmax").value,0.1), num(q("c_steps").value,60),
+        num(q("c_eah").value,0.02), q("c_dopants").value,
+        q("c_vac").checked, q("c_anti").checked, q("c_int").checked, q("c_dop").checked,
+        q("c_custom").value, q("c_env").checked, num(q("c_mpe").value,8) ];
+      var job={ desc:"Submitting to the compute backend…" };
+      job.p=(async function(){
+        var r=await fetch(HF+"/gradio_api/call/compute",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:data})});
+        var j=await r.json();
+        if(!j.event_id) throw new Error("Could not start the job.");
+        return await readSSE(HF+"/gradio_api/call/compute/"+j.event_id, onEvt);
+      })();
+      INFLIGHT=job;
+      attachToInflight(job);
     }
 
     q("c_go").addEventListener("click", function(){
@@ -6013,7 +6029,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       mvUnmount(upInst); mvUnmount(defInst); upInst=null; defInst=null;
       mvClear(q("c_upview")); mvClear(q("c_defview"));
       uploadedCif=null; lastResult=null; currentRow=null; frames=[]; fi=0;
-      UPCIF=null; LAST=null; SELROW=null;
+      UPCIF=null; LAST=null; SELROW=null; INFLIGHT=null;
       try{ q("c_file").value=""; }catch(_){}
       q("c_custom").value=""; q("c_dopants").value="";
       q("c_upview").innerHTML='<pre class="muted">Upload a CIF to preview the structure here.</pre>';
@@ -6029,7 +6045,9 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
     // restore prior structure + results after a re-inject (React wipes the tab)
     if(UPCIF){ uploadedCif=UPCIF; mvUnmount(upInst); upInst=mvMount(q("c_upview"), UPCIF, null, 1, 300); }
-    if(LAST){
+    if(INFLIGHT){
+      attachToInflight(INFLIGHT);
+    } else if(LAST){
       lastResult=LAST;
       renderTable(root, LAST.columns, LAST.rows, selectDefect);
       if((LAST.pd_entries&&LAST.pd_entries.length) || LAST.pd_plotly_json || LAST.plot_b64){ q("c_pdwrap").style.display="block"; renderPD(LAST); }
