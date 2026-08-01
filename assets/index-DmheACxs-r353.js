@@ -5270,8 +5270,8 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       note: "Median vacancy (Vₓ) formation energy across hosts. <b>Darker = that element's vacancy costs more</b> (harder to form)." },
     { k: "interstitial", tab: "Interstitial Xᵢ", key: "med",
       note: "Median interstitial (Xᵢ) formation energy. <b>Darker = that element's interstitial is more suppressed.</b>" },
-    { k: "antisite", tab: "Substitution Xʸ", key: "med",
-      note: "Media substitution (X on another site) formation energy. <b>Darker = that element's substitution costs more.</b>" },
+    { k: "antisite", tab: "Antisite", key: "med",
+      note: "Median antisite (X on another host-lattice site) formation energy. <b>Darker = that element's antisite costs more.</b>" },
     { k: "dopant", tab: "Dopant", key: "med",
       note: "Median DFT dopant formation energy (best growth vertex). <b>Lighter = easier to dope in</b> (lower formation energy)." }
   ];
