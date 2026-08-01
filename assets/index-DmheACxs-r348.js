@@ -5270,7 +5270,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       note: "Median vacancy (Vₓ) formation energy across hosts. <b>Darker = that element's vacancy costs more</b> (harder to form)." },
     { k: "interstitial", tab: "Interstitial Xᵢ", key: "med",
       note: "Median interstitial (Xᵢ) formation energy. <b>Darker = that element's interstitial is more suppressed.</b>" },
-    { k: "substitution", tab: "Substitution Xʸ", key: "med",
+    { k: "antisite", tab: "Substitution Xʸ", key: "med",
       note: "Media substitution (X on another site) formation energy. <b>Darker = that element's substitution costs more.</b>" },
     { k: "dopant", tab: "Dopant", key: "med",
       note: "Median DFT dopant formation energy (best growth vertex). <b>Lighter = easier to dope in</b> (lower formation energy)." }
@@ -5536,7 +5536,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           n.vx += (W/2 - n.x)*0.008; n.vy += (H/2 - n.y)*0.008;
           n.x += Math.max(-12, Math.min(12, n.vx)); n.y += Math.max(-12, Math.min(12, n.vy));
           n.vx *= 0.82; n.vy *= 0.82;
-          n.x = Math.max(30, Math.min(W-30, n.x)); n.y = Math.max(26, Math.min(H-26, n.y));
+          n.x = Math.max(45, Math.min(W-45, n.x)); n.y = Math.max(34, Math.min(H-58, n.y));
         });
       }
     }
