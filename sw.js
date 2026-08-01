@@ -2,7 +2,7 @@
    The page clears every wbg-v2-* Cache Storage entry on refresh. This worker also
    requests current same-origin site resources with cache:'no-store', so an older
    layout or sub-app cannot win after navigation from another tab. */
-const CACHE = 'wbg-v2-95d087628b';
+const CACHE = 'wbg-v2-d32a1dbbe0';
 const NETWORK_ONLY = /\/wbg-v2\/(assets\/|cifs\/|trajs\/|structgrid\/|landscape\/|wbguniverse\/|.*\.jsongz$|banner\.svg$|atom\.png|sw\.js$)/;
 
 self.addEventListener('install', (event) => {
