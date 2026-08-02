@@ -11320,7 +11320,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       panel.id = "wbg-calc-panel";
       // zoom:1.12 on <html> - size against it or the card overflows the viewport top
       var z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
-      panel.style.cssText = "position:fixed;right:18px;bottom:12px;display:flex;flex-direction:column;overflow:hidden;" +
+      panel.style.cssText = "position:fixed;left:18px;bottom:12px;display:flex;flex-direction:column;overflow:hidden;" +
         "background:#fff;border:1px solid "+HAIR+";border-radius:12px;box-shadow:0 6px 24px rgba(20,40,60,.18);" +
         "z-index:9998;padding:13px 15px;font-family:"+AN+";font-size:14px;color:"+INK;
       panel.style.width = Math.min(1000, Math.floor((window.innerWidth - 40) / z)) + "px";
