@@ -11557,7 +11557,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     if (!rail){
       rail = document.createElement('div'); rail.className = RAIL;
       var play = document.createElement('button'); play.type='button'; play.dataset.role='play';
-      play.textContent = '▶ play';
+      play.textContent = '▶'; play.setAttribute('aria-label','play the synthesis steps'); play.title='play';
       play.onclick = function(ev){ ev.stopPropagation(); playing ? stop() : start(c); };
       rail.appendChild(play);
       for (var k=0;k<n;k++){
@@ -11576,7 +11576,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       s.classList.toggle('done', k<=i);
     });
     var cnt = rail.querySelector('.count'); if (cnt) cnt.textContent = 'step '+(i+1)+' of '+n;
-    var pb = rail.querySelector('[data-role=play]'); if (pb) pb.textContent = playing ? '❚❚ pause' : '▶ play';
+    var pb = rail.querySelector('[data-role=play]'); if (pb) { pb.textContent = playing ? '❚❚' : '▶'; pb.title = playing ? 'pause' : 'play'; }
   }
 
   function go(c, k){
@@ -11633,7 +11633,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     s.textContent=[
       /* timeline spine behind the step circles */
       '.wbg-steps{position:relative}',
-      '.wbg-steps::before{content:"";position:absolute;left:31px;top:26px;bottom:26px;width:2px;',
+      '.wbg-steps::before{content:"";position:absolute;left:31px;top:26px;bottom:var(--wbg-spine-bottom,26px);width:2px;',
         'background:linear-gradient(180deg,var(--wbg-accent,#0e7490) 0%,var(--wbg-accent,#0e7490) var(--wbg-prog,0%),var(--wbg-border,#d4d8e0) var(--wbg-prog,0%));',
         'border-radius:2px;transition:--wbg-prog .45s ease}',
       /* rows */
@@ -11653,7 +11653,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       '.wbg-phase-chip .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '@keyframes wbgChip{from{opacity:0;transform:translateY(-5px) scale(.97)}to{opacity:1;transform:none}}',
       /* rail restyle */
-      '.'+RAIL+'{gap:12px}',
+      '.'+RAIL+'{gap:12px;position:relative;z-index:2;padding-left:0}',
       '.'+RAIL+' .seg{height:5px;transition:background .3s ease,transform .2s ease}',
       '.'+RAIL+' .seg:hover{transform:scaleY(1.9)}',
       '.'+RAIL+' button[data-role=play]{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;',
@@ -11692,6 +11692,8 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       }
     });
     if(host) host.style.setProperty('--wbg-prog', rows.length>1?Math.round(cur*100/(rows.length-1))+'%':'100%');
+    if(host){ var hb=host.getBoundingClientRect().bottom, lb=rows[rows.length-1].getBoundingClientRect().bottom;
+      host.style.setProperty('--wbg-spine-bottom', Math.max(26, Math.round(hb-lb+26))+'px'); }
 
     /* phase chip above the illustration, repeating the step title already on screen */
     var body=c.children[1]; if(!body) return;
