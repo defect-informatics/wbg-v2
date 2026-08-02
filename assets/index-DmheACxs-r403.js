@@ -11404,3 +11404,76 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     fillGaps();
   }).observe(document.body || document.documentElement, {childList: true, subtree: true});
 })();
+;(function(){
+  /* __wbgDftType — typewriter reveal for the "What our DFT analysis shows" card.
+     Appended IIFE, the house pattern: an __wbg*Installed guard plus a MutationObserver
+     poll, because a top-level tab switch REMOVES the card from the DOM (the r356 lesson).
+     It reveals TEXT NODES only, never innerHTML, so the <sub>/<sup> in V_C, E_F, T_g and
+     the ionisation symbols survive the animation. One cycle per (host, card) - re-typing
+     on every React re-render would make the card unreadable. */
+  if (window.__wbgDftTypeInstalled) return;
+  window.__wbgDftTypeInstalled = 1;
+  var TITLE = 'What our DFT analysis shows';
+  var CPF = 7;               /* characters revealed per animation frame */
+  var typed = Object.create(null);
+  var running = false;
+
+  function reduced(){ try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; } }
+
+  function findCard(){
+    var els = document.querySelectorAll('div');
+    for (var i=0;i<els.length;i++){
+      var f = els[i].firstElementChild;
+      if (f && f.children.length===0 && (f.textContent||'').trim()===TITLE) return els[i];
+    }
+    return null;
+  }
+  function hostKey(){
+    var s = document.querySelectorAll('select');
+    for (var i=0;i<s.length;i++){ if (/mp-\d+/.test(s[i].value||'')) return s[i].value; }
+    return 'default';
+  }
+  function textNodes(root){
+    var out=[], w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var n; while((n=w.nextNode())){ if ((n.nodeValue||'').length) out.push(n); }
+    return out;
+  }
+
+  function type(card, key){
+    var body = card.children[1]; if (!body) return;
+    var nodes = textNodes(body); if (!nodes.length) return;
+    var full = nodes.map(function(n){ return n.nodeValue; });
+    var total = full.reduce(function(a,s){ return a+s.length; }, 0);
+    if (!total) return;
+    typed[key] = 1;
+    if (reduced()) return;                      /* honour reduced-motion: leave text intact */
+    running = true;
+    for (var i=0;i<nodes.length;i++) nodes[i].nodeValue = '';
+    var shown = 0;
+    (function step(){
+      shown = Math.min(total, shown + CPF);
+      var left = shown;
+      for (var i=0;i<nodes.length;i++){
+        var len = full[i].length;
+        if (left >= len){ nodes[i].nodeValue = full[i]; left -= len; }
+        else { nodes[i].nodeValue = full[i].slice(0, left); left = 0; }
+      }
+      if (shown < total) requestAnimationFrame(step);
+      else { running = false; for (var j=0;j<nodes.length;j++) nodes[j].nodeValue = full[j]; }
+    })();
+  }
+
+  function scan(){
+    if (running) return;
+    var card = findCard(); if (!card) return;
+    var key = hostKey() + '|' + TITLE;
+    if (typed[key]) return;
+    type(card, key);
+  }
+
+  var t = null;
+  new MutationObserver(function(){ clearTimeout(t); t = setTimeout(scan, 120); })
+    .observe(document.body, {childList:true, subtree:true});
+  setTimeout(scan, 400);
+  setInterval(scan, 1500);   /* belt-and-braces: the observer can miss a fast re-mount */
+})();
