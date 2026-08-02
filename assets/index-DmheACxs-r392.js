@@ -11299,27 +11299,57 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     var bt = document.createElement("button"); bt.id = "db-calc"; bt.textContent = "Σ calculation (raw data)";
     bt.setAttribute("style", mv.getAttribute("style")); bt.style.color = TEAL;
     row.appendChild(bt);
-    var wrap = document.createElement("div"); wrap.id = "db-calcpane";
-    wrap.style.cssText = "display:none;margin:6px auto 10px;max-width:980px;border:1px solid "+HAIR+";border-radius:8px;background:#fff;text-align:left";
-    var bar = document.createElement("div");
-    bar.style.cssText = "display:flex;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid "+HAIR+";font-family:"+AN+";font-size:14px;color:"+MUT;
-    bar.innerHTML = 'source: ';
+    // POPUP, same shape as the relaxation-movie panel: a fixed floating card with its own
+    // header, close button and Esc, instead of an inline pane that pushed the dashboard down.
     var sel = document.createElement("select"); sel.id = "db-calcsrc";
     sel.style.cssText = "font-family:"+AN+";font-size:14px;padding:2px 6px";
     MODELS.forEach(function(m){ var o=document.createElement("option"); o.value=m[0]; o.textContent=m[1]; sel.appendChild(o); });
-    bar.appendChild(sel);
-    var pane = document.createElement("div");
-    wrap.appendChild(bar); wrap.appendChild(pane);
-    row.parentNode.insertBefore(wrap, row.nextSibling);
+    var pane = document.createElement("div"); pane.id = "db-calcpane";
+    pane.style.cssText = "flex:1 1 auto;overflow-y:auto;min-height:0;text-align:left;padding-top:8px";
+    var panel = null;
+    function closePanel(){ var q = document.getElementById("wbg-calc-panel"); if (q) q.remove(); panel = null; }
+    if (!window.__wbgCalcEsc){
+      window.__wbgCalcEsc = 1;
+      window.addEventListener("keydown", function(ev){
+        if (ev.key === "Escape"){ var q = document.getElementById("wbg-calc-panel"); if (q) q.remove(); }
+      });
+    }
+    function openPanel(){
+      closePanel();
+      panel = document.createElement("div");
+      panel.id = "wbg-calc-panel";
+      // zoom:1.12 on <html> - size against it or the card overflows the viewport top
+      var z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+      panel.style.cssText = "position:fixed;right:18px;bottom:12px;display:flex;flex-direction:column;overflow:hidden;" +
+        "background:#fff;border:1px solid "+HAIR+";border-radius:12px;box-shadow:0 6px 24px rgba(20,40,60,.18);" +
+        "z-index:9998;padding:13px 15px;font-family:"+AN+";font-size:14px;color:"+INK;
+      panel.style.width = Math.min(1000, Math.floor((window.innerWidth - 40) / z)) + "px";
+      panel.style.maxHeight = Math.floor((window.innerHeight - 24) / z) + "px";
+      var head = document.createElement("div");
+      head.style.cssText = "display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:0 0 7px;border-bottom:1px solid "+HAIR;
+      var c = ctx();
+      var ttl = document.createElement("div");
+      ttl.style.cssText = "font-weight:800;font-size:14px;color:"+TEAL;
+      ttl.innerHTML = "\u03a3 calculation (raw data) \u2014 " + sb(c.def || "this defect") +
+                      (c.mp ? ' <span style="color:'+MUT+';font-weight:400">'+c.mp+"</span>" : "");
+      var lab = document.createElement("span"); lab.style.cssText = "color:"+MUT; lab.textContent = "source:";
+      var x = document.createElement("button"); x.id = "db-calcclose"; x.textContent = "\u2715 close";
+      x.style.cssText = "margin-left:auto;border:1px solid "+HAIR+";background:#0e7490;color:#fff;border-radius:7px;" +
+                        "cursor:pointer;padding:3px 12px;font-size:14px;font-weight:700;font-family:"+AN;
+      x.addEventListener("click", closePanel);
+      head.appendChild(ttl); head.appendChild(lab); head.appendChild(sel); head.appendChild(x);
+      panel.appendChild(head); panel.appendChild(pane);
+      document.body.appendChild(panel);
+      render(pane, sel);
+    }
     bt.addEventListener("click", function(){
-      var open = wrap.style.display !== "none";
-      wrap.style.display = open ? "none" : "block";
-      if (!open) render(pane, sel);
+      if (document.getElementById("wbg-calc-panel")) { closePanel(); return; }
+      openPanel();
     });
-    sel.addEventListener("change", function(){ render(pane, sel); });
+    sel.addEventListener("change", function(){ if (document.getElementById("wbg-calc-panel")) render(pane, sel); });
     ["db-def","db-cond","db-host"].forEach(function(id){
       document.addEventListener("change", function(ev){
-        if (ev.target && ev.target.id === id && wrap.style.display !== "none") render(pane, sel);
+        if (ev.target && ev.target.id === id && document.getElementById("wbg-calc-panel")) openPanel();
       }, true);
     });
   }
