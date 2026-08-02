@@ -4,7 +4,7 @@
    stamped with the build id below, which is a digest of the shipped payloads: the URL changes
    exactly when the data changes, so a deploy is never masked by any cache, and within one deploy
    the URL is stable and stays cacheable. Applied here, once, so every call site is covered. */
-(function(){var B="7d18cc48ff";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
+(function(){var B="cee7f95dd7";window.__WBG_BUILD=B;var F=window.fetch;if(!F||window.__wbgFetchStamped)return;window.__wbgFetchStamped=1;window.fetch=function(i,o){try{var u=typeof i==="string"?i:(i&&i.url);if(u&&u.indexOf(".jsongz")>=0){var a=new URL(u,location.href);if(a.origin===location.origin&&!a.searchParams.get("b")){a.searchParams.set("b",B);i=typeof i==="string"?a.toString():new Request(a.toString(),i);}}}catch(e){}try{if(String((typeof i==="string"?i:(i&&i.url))||"").indexOf(".jsongz")>=0){o=Object.assign({},o||{},{cache:"no-cache"});}}catch(e){}return F.call(this,i,o);};})();
 (function(){/* Purge only this app's Cache Storage on every page load. Other projects share
    the same GitHub Pages origin and must not have their caches touched. */
 try{if("caches" in window)caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf("wbg-v2-")===0;}).map(function(k){return caches.delete(k);}));});}catch(e){}
@@ -10967,9 +10967,23 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       if (isFinite(lm)) { LO[m] = lm; WIN[m] = wd; }
     }
     if (!Object.keys(LO).length) return "";
-    let hi = 0;
-    for (const m in per) for (const d in per[m]) { const e = per[m][d].e; if (e != null && LO[m] != null) hi = Math.max(hi, Math.min(3, e - LO[m])); }
-    hi = Math.max(hi, 0.2);
+    let dmax = 0, clipped = false;
+    for (const m in per) for (const d in per[m]) {
+      const e = per[m][d].e;
+      if (e == null || LO[m] == null) continue;
+      const dv = e - LO[m];
+      if (dv > 3) clipped = true;
+      dmax = Math.max(dmax, Math.min(3, dv));
+    }
+    // DATA-DRIVEN axis: the old hardcoded 0.2 eV floor drew mp-830 O_N (whole ensemble
+    // 0.0265 eV) as a flat line on the bottom of the panel under 0.07 / 0.13 ticks.
+    // Range = data + 8 % headroom snapped UP to a 1/2/5x10^n step, so ticks are round.
+    const want = Math.max(dmax * 1.08, 1e-3);
+    const raw = want / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), q = raw / mag;
+    const step = (q <= 1 ? 1 : q <= 2 ? 2 : q <= 5 ? 5 : 10) * mag;
+    const nTick = Math.max(1, Math.ceil(want / step - 1e-9));
+    const hi = step * nTick;
+    const yDec = step >= 1 ? 1 : step >= 0.1 ? 2 : step >= 0.01 ? 3 : 4;
     const W = 980, H = 226, L = 52, R = 208, T = 26, B = 44;
     const X = i => L + i / Math.max(1, dists.length - 1) * (W - L - R);
     const Y = v => T + (1 - v / hi) * (H - T - B);
@@ -10987,7 +11001,9 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           (r.fmax != null ? "\nfmax = " + Number(r.fmax).toFixed(3) + " eV/\u00c5" : "") +
           (r.n != null ? "\nsteps = " + r.n : "") +
           "\n" + (r.conv ? "converged" : "NOT converged");
-        pts += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="' + (r.conv ? 2.6 : 1.6) + '" fill="' + col + '"' + (r.conv ? "" : ' opacity="0.35"') + '><title>' + esc(tip) + '</title></circle>';
+        const r0 = r.conv ? 2.6 : 1.6;
+        pts += '<circle class="snb-pt" data-m="' + esc(m) + '" data-d="' + esc(d) + '" data-r0="' + r0 + '" cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="' + r0 + '" fill="' + col + '"' + (r.conv ? "" : ' opacity="0.35"') + ' style="cursor:pointer"><title>' + esc(tip) + '</title></circle>' +
+               '<circle class="snb-hit" data-m="' + esc(m) + '" data-d="' + esc(d) + '" cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="7" fill="transparent" style="cursor:pointer"><title>' + esc(tip) + '</title></circle>';
       });
       g += '<path d="' + path + '" fill="none" stroke="' + col + '" stroke-width="1.5" opacity="0.85"/>' + pts;
     });
@@ -10995,9 +11011,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     dists.forEach((d, i) => {
       ax += '<text x="' + X(i) + '" y="' + (H - B + 15) + '" text-anchor="end" font-size="14.0" fill="' + MUT + '" transform="rotate(-45 ' + X(i) + ' ' + (H - B + 15) + ')">' + esc(distShort(d)) + "</text>";
     });
-    for (let k = 0; k <= 3; k++) {
-      const v = hi * k / 3;
-      ax += '<text x="' + (L - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="14.0" fill="' + MUT + '">' + v.toFixed(2) + "</text>";
+    for (let k = 0; k <= nTick; k++) {
+      const v = step * k;
+      ax += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="' + BORD + '" stroke-width="0.7" opacity="' + (k ? 0.55 : 1) + '"/>' +
+            '<text x="' + (L - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="14.0" fill="' + MUT + '">' + v.toFixed(yDec) + "</text>";
     }
     let lg = "";
     Object.keys(per).sort().forEach((m, i) => {
@@ -11007,7 +11024,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     });
     return '<svg width="' + W + '" height="' + H + '" style="display:block">' +
       '<rect x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="none" stroke="' + BORD + '"/>' + g + ax + lg +
-      '<text x="' + (L + (W - L - R) / 2) + '" y="14" text-anchor="middle" font-size="14.0" fill="' + MUT + '">ΔE vs each model\'s OWN minimum (eV, clipped at 3) — filled dot = converged, legend arrow = that model\'s winning distortion, hover a point for its numbers</text></svg>';
+      '<text x="' + (L + (W - L - R) / 2) + '" y="14" text-anchor="middle" font-size="14.0" fill="' + MUT + '">ΔE vs each model\'s OWN minimum (eV' + (clipped ? ', clipped at 3' : '') + ') — filled dot = converged, legend arrow = that model\'s winning distortion, hover a point for its numbers</text></svg>';
   }
   window.__wbgSnB = async function (mp, display, panel) {
     const E = await ens(mp);
@@ -11025,6 +11042,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       '<div id="snb-curve" style="margin-top:6px"></div>' +
       '<div style="display:flex;gap:8px;align-items:center;margin-top:6px">' +
       '<label style="font-size:14.0px;color:' + MUT + '">distortion movie <select id="snb-model" style="font-size:14.0px;padding:3px 7px;border:1px solid ' + BORD + ';border-radius:7px"></select> <select id="snb-sel" style="font-size:14.0px;padding:3px 7px;border:1px solid ' + BORD + ';border-radius:7px"><option value="">— pick a distortion —</option></select></label>' +
+      '<button id="snb-play" style="font-size:14.0px;padding:3px 10px;border:1px solid ' + BORD + ';border-radius:7px;background:#fff;cursor:pointer">\u25b6 walk distortions</button>' +
       '<div id="snb-meta" style="font-size:14.0px;color:' + MUT + '"></div></div>' +
       '<div id="snb-frame-slot"></div>';
     const old = panel.querySelector("#wbg-snb-block");
@@ -11071,6 +11089,52 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       window.addEventListener("message", onReady);
       setTimeout(post, 2500);
     });
+    // --- the PLOT is the control: click a point to load that model+distortion, and the play
+    // button walks the distortion axis with a cursor on the current member ---
+    const svgEl = div.querySelector("#snb-curve svg");
+    if (svgEl) {
+      const NS = "http://www.w3.org/2000/svg";
+      const cur = document.createElementNS(NS, "line");
+      cur.setAttribute("y1", "0"); cur.setAttribute("y2", svgEl.getAttribute("height"));
+      cur.setAttribute("stroke", "#0e7490"); cur.setAttribute("stroke-width", "1.2");
+      cur.setAttribute("stroke-dasharray", "3 3"); cur.setAttribute("opacity", "0");
+      svgEl.insertBefore(cur, svgEl.firstChild);
+      const moveCur = x => { if (x == null) return; cur.setAttribute("x1", x); cur.setAttribute("x2", x); cur.setAttribute("opacity", "0.8"); };
+      const pick = (m, d, x) => {
+        if (m && msel.value !== m) { msel.value = m; fill(); }
+        sel.value = d;
+        sel.dispatchEvent(new Event("change", { bubbles: true }));
+        moveCur(x);
+      };
+      svgEl.querySelectorAll("circle.snb-pt").forEach(c => {
+        c.addEventListener("mouseenter", () => c.setAttribute("r", String(+c.dataset.r0 + 2.4)));
+        c.addEventListener("mouseleave", () => c.setAttribute("r", c.dataset.r0));
+      });
+      svgEl.querySelectorAll("circle.snb-hit").forEach(c => {
+        c.addEventListener("click", () => pick(c.dataset.m, c.dataset.d, c.getAttribute("cx")));
+      });
+      const btn = div.querySelector("#snb-play");
+      let timer = null;
+      const stopWalk = () => { if (timer) clearInterval(timer); timer = null; if (btn) btn.textContent = "\u25b6 walk distortions"; };
+      if (btn) btn.addEventListener("click", () => {
+        if (timer) { stopWalk(); return; }
+        const opts = [].slice.call(sel.options).filter(o => o.value);
+        if (!opts.length) return;
+        let i = Math.max(0, opts.map(o => o.value).indexOf(sel.value));
+        btn.textContent = "\u23f8 stop";
+        const stepOn = () => {
+          const o = opts[i % opts.length];
+          const m = msel.value || Object.keys(per)[0];
+          const hit = svgEl.querySelector('circle.snb-hit[data-m="' + m + '"][data-d="' + o.value + '"]');
+          pick(null, o.value, hit ? hit.getAttribute("cx") : null);
+          i++;
+        };
+        stepOn();
+        timer = setInterval(stepOn, 2800);
+      });
+      const obs = new MutationObserver(() => { if (!document.body.contains(div)) { stopWalk(); obs.disconnect(); } });
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
   };
 })();
 
