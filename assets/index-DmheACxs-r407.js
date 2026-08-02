@@ -11618,3 +11618,103 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     .observe(document.body,{childList:true,subtree:true});
   setTimeout(scan,500); setInterval(scan,2000);
 })();
+;(function(){
+  /* __wbgSynthSkin — the visual layer over __wbgSynthUX (r405).
+     Additive only: it adds CSS and marks rows done/current. It never re-renders the card,
+     never touches the React tree's text, and invents no value - the phase chip repeats the
+     step title the card already shows. */
+  if (window.__wbgSynthSkinInstalled) return;
+  window.__wbgSynthSkinInstalled = 1;
+  var RAIL='wbg-synth-rail';
+
+  function css(){
+    if (document.getElementById('wbg-synth-skin')) return;
+    var s=document.createElement('style'); s.id='wbg-synth-skin';
+    s.textContent=[
+      /* timeline spine behind the step circles */
+      '.wbg-steps{position:relative}',
+      '.wbg-steps::before{content:"";position:absolute;left:31px;top:26px;bottom:26px;width:2px;',
+        'background:linear-gradient(180deg,var(--wbg-accent,#0e7490) 0%,var(--wbg-accent,#0e7490) var(--wbg-prog,0%),var(--wbg-border,#d4d8e0) var(--wbg-prog,0%));',
+        'border-radius:2px;transition:--wbg-prog .45s ease}',
+      /* rows */
+      '.wbg-step-row{position:relative;z-index:1;border-width:1.5px!important;',
+        'transition:border-color .3s ease,background .3s ease,transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease}',
+      '.wbg-step-row.is-done .wbg-dot{background:var(--wbg-accent,#0e7490)!important;border-color:var(--wbg-accent,#0e7490)!important;color:#fff!important}',
+      '.wbg-step-row.is-current{background:linear-gradient(135deg,rgba(14,116,144,.07),rgba(14,116,144,.02))!important;',
+        'box-shadow:0 6px 22px -8px rgba(14,116,144,.45)}',
+      '.wbg-step-row.is-current .wbg-dot{box-shadow:0 0 0 5px rgba(14,116,144,.16)}',
+      '.wbg-step-row:not(.is-current):hover{transform:translateX(4px)}',
+      '.wbg-dot{transition:background .3s ease,box-shadow .3s ease,color .3s ease}',
+      /* phase chip over the illustration */
+      '.wbg-phase-chip{display:inline-flex;align-items:center;gap:8px;padding:5px 13px;border-radius:99px;',
+        'background:var(--wbg-accent,#0e7490);color:#fff;font-size:13px;font-weight:800;letter-spacing:.2px;',
+        'margin-bottom:10px;animation:wbgChip .35s ease both;max-width:100%}',
+      '.wbg-phase-chip .n{opacity:.75;font-variant-numeric:tabular-nums}',
+      '.wbg-phase-chip .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+      '@keyframes wbgChip{from{opacity:0;transform:translateY(-5px) scale(.97)}to{opacity:1;transform:none}}',
+      /* rail restyle */
+      '.'+RAIL+'{gap:12px}',
+      '.'+RAIL+' .seg{height:5px;transition:background .3s ease,transform .2s ease}',
+      '.'+RAIL+' .seg:hover{transform:scaleY(1.9)}',
+      '.'+RAIL+' button[data-role=play]{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;',
+        'justify-content:center;font-size:12px;border-width:1.5px;transition:background .25s ease,color .25s ease,transform .2s ease}',
+      '.'+RAIL+' button[data-role=play]:hover{transform:scale(1.08)}',
+      '.'+RAIL+' .count{font-variant-numeric:tabular-nums;letter-spacing:.3px}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function card(){
+    var d=document.querySelectorAll('div');
+    for(var i=0;i<d.length;i++){var f=d[i].firstElementChild;
+      if(f&&/^Synthesis\s*[—-]/.test((f.textContent||'').trim())) return d[i];}
+    return null;
+  }
+
+  function skin(){
+    css();
+    var c=card(); if(!c) return;
+    var rows=[].slice.call(c.querySelectorAll('.wbg-step-row'));
+    if(!rows.length) return;
+    var host=rows[0].parentElement;
+    if(host) host.classList.add('wbg-steps');
+    var cur=-1;
+    rows.forEach(function(r,i){ if(r.getAttribute('aria-current')==='step') cur=i; });
+    if(cur<0) cur=0;
+    rows.forEach(function(r,i){
+      var dot=r.firstElementChild;
+      if(dot) dot.classList.add('wbg-dot');
+      r.classList.toggle('is-current', i===cur);
+      r.classList.toggle('is-done', i<cur);
+      if(dot){
+        if(i<cur){ if(dot.dataset.orig===undefined) dot.dataset.orig=dot.textContent; dot.textContent='✓'; }
+        else if(dot.dataset.orig!==undefined && dot.textContent==='✓'){ dot.textContent=dot.dataset.orig; }
+      }
+    });
+    if(host) host.style.setProperty('--wbg-prog', rows.length>1?Math.round(cur*100/(rows.length-1))+'%':'100%');
+
+    /* phase chip above the illustration, repeating the step title already on screen */
+    var body=c.children[1]; if(!body) return;
+    var grid=body.firstElementChild; var right=grid&&grid.children[1]; if(!right) return;
+    var chip=right.querySelector('.wbg-phase-chip');
+    var titleEl=rows[cur].firstElementChild&&rows[cur].firstElementChild.nextElementSibling;
+    var raw=(titleEl&&titleEl.firstElementChild?titleEl.firstElementChild.textContent:'')||'';
+    var t=raw.replace(/^Step\s+\d+\s*:\s*/,'').trim();
+    if(!chip){
+      chip=document.createElement('div'); chip.className='wbg-phase-chip';
+      chip.innerHTML='<span class="n"></span><span class="t"></span>';
+      right.insertBefore(chip, right.firstChild);
+    }
+    var n=chip.querySelector('.n'), tt=chip.querySelector('.t');
+    var label='step '+(cur+1)+' / '+rows.length;
+    if(n.textContent!==label||tt.textContent!==t){
+      n.textContent=label; tt.textContent=t;
+      chip.style.animation='none'; void chip.offsetWidth; chip.style.animation='';
+    }
+  }
+
+  var t=null;
+  new MutationObserver(function(){clearTimeout(t);t=setTimeout(skin,140);})
+    .observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['aria-current','class']});
+  setTimeout(skin,600); setInterval(skin,1200);
+})();
