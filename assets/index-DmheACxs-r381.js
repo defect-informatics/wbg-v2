@@ -11078,13 +11078,15 @@ iv=setInterval(function(){if(paint(t)||++tries>40)clearInterval(iv);},250);}).ca
 fetch("./defects.jsongz",{cache:"no-cache"}).then(function(r){return r.arrayBuffer();}).then(function(b){
 var ds=new DecompressionStream("gzip"),st=new Response(new Blob([b]).stream().pipeThrough(ds));
 return st.json();}).then(function(rows){
-var h={};rows.forEach(function(r){var p=String(r.host).split("_");h[p[1]||p[0]]=1;});
-var fs=Object.keys(h).sort(),ho=fs.length,nd=rows.length,tries=0;
+/* count DISTINCT COMPOUNDS (host_id), not unique formulas: two polymorphs of one
+   formula are two compounds and collapsing them undercounted the library. */
+var h={};rows.forEach(function(r){h[String(r.host)]=1;});
+var ho=Object.keys(h).length,nd=rows.length,tries=0;
 var iv=setInterval(function(){tries++;
 var c=document.querySelectorAll(".wag-chips .wag-chip");
 if(c.length>=2){
 var b1=c[0].querySelector(".wag-cnt"),b2=c[1].querySelector(".wag-cnt");
-if(b1&&b1.getAttribute("data-cnt")!==String(ho))c[0].innerHTML='<b class="wag-cnt" data-cnt="'+ho+'">'+ho.toLocaleString("en-US")+'</b> host'+(ho===1?"":"s")+' ('+fs.join(", ")+')';
+if(b1&&b1.getAttribute("data-cnt")!==String(ho))c[0].innerHTML='<b class="wag-cnt" data-cnt="'+ho+'">'+ho.toLocaleString("en-US")+'</b> compound'+(ho===1?"":"s")+'';
 if(b2&&b2.getAttribute("data-cnt")!==String(nd))c[1].innerHTML='<b class="wag-cnt" data-cnt="'+nd+'">'+nd.toLocaleString("en-US")+'</b> defects';
 }
 if(tries>24)clearInterval(iv);},250);}).catch(function(){});
