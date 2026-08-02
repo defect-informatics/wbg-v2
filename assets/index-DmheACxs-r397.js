@@ -5737,9 +5737,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           '<div class="sub" id="c_convtitle" style="display:none;margin-top:10px">Relaxation trajectory &amp; convergence — structure, energy and max force vs step</div>' +
           '<iframe id="c_trajframe" src="./traj/" title="Relaxation trajectory" style="display:none;width:100%;height:540px;border:1px solid #e5e7eb;border-radius:12px;background:#fff"></iframe>' +
           '<div class="row">' +
-            '<button type="button" class="btn" id="c_dl1">⬇ This CIF</button>' +
             '<button type="button" class="btn" id="c_xan">📈 XANES</button>' +
-            '<button type="button" class="btn" id="c_dl">⬇ Download all optimized CIFs</button>' +
           '</div>' +
         '</div>' +
         '<div class="log" id="c_log" style="display:none"></div>' +
@@ -5791,8 +5789,6 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     }); }catch(e){}
     el.innerHTML="";
   }
-
-  function dlText(text, name){ var b=new Blob([text],{type:"chemical/x-cif"}); var u=URL.createObjectURL(b); var a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(u);},1500); }
 
   function renderTable(root, cols, rows, onPick){
     var el = root.querySelector("#c_table");
@@ -5973,9 +5969,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       }, 550);
     });
 
-    q("c_dl1").addEventListener("click", function(){ if(currentRow && currentRow.cif) dlText(currentRow.cif, String(currentRow.defect).replace(/[+\/]/g,"_")+".cif"); });
     q("c_xan").addEventListener("click", function(){ if(currentRow && currentRow.cif && lastResult && lastResult.bulk_cif && window.__wbgXanes) window.__wbgXanes.open(String(currentRow.defect), lastResult.bulk_cif, currentRow.cif); });
-    q("c_dl").addEventListener("click", function(){ if(lastResult && lastResult.cifs_zip_b64){ var a=document.createElement("a"); a.href=lastResult.cifs_zip_b64; a.download="optimized_defect_cifs.zip"; document.body.appendChild(a); a.click(); a.remove(); } });
 
     function onEvt(ev,p){
       if(ev!=="generating") return;
@@ -6067,7 +6061,6 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       renderTable(root, LAST.columns, LAST.rows, selectDefect);
       if((LAST.pd_entries&&LAST.pd_entries.length) || LAST.pd_plotly_json || LAST.plot_b64){ q("c_pdwrap").style.display="block"; renderPD(LAST); }
       if(LAST.log && LAST.log.length){ q("c_log").style.display="block"; q("c_log").innerHTML=fmtLogAll(LAST.log); }
-      q("c_dl").style.display = LAST.cifs_zip_b64 ? "inline-block":"none";
       if(LAST.rows && LAST.rows.length){ selectDefect(SELROW || LAST.rows[0]); }
       desc("Done — click a defect row to inspect its relaxed structure.");
     }
@@ -9503,10 +9496,42 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
   // ------------------------- input-file generators (client-side) -------------------------
   const CHARGEOF = { dft_qp1: 1, dft_qp2: 2, dft_qm1: -1, dft_qm2: -2 };
-  function dlText(name, text) {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-    a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  function showScript(title, text) {
+    const old = document.getElementById("wbg-script-panel");
+    if (old) old.remove();
+    const p = document.createElement("div");
+    p.id = "wbg-script-panel";
+    const z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    p.style.cssText = "position:fixed;left:18px;bottom:12px;display:flex;flex-direction:column;overflow:hidden;" +
+      "background:#fff;border:1px solid " + HAIR2 + ";border-radius:12px;box-shadow:0 6px 24px rgba(20,40,60,.18);" +
+      "z-index:9998;padding:13px 15px;font-family:" + AN + ";font-size:14px;color:" + INK;
+    p.style.width = Math.min(980, Math.floor((window.innerWidth - 40) / z)) + "px";
+    p.style.maxHeight = Math.floor((window.innerHeight - 24) / z) + "px";
+    const h = document.createElement("div");
+    h.style.cssText = "display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:0 0 7px;border-bottom:1px solid " + HAIR2;
+    const t = document.createElement("div");
+    t.style.cssText = "font-weight:800;color:" + TEAL;
+    t.textContent = title;
+    const x = document.createElement("button");
+    x.id = "wbg-script-close";
+    x.textContent = "\u2715 close";
+    x.style.cssText = "margin-left:auto;border:1px solid " + HAIR2 + ";background:#0e7490;color:#fff;border-radius:7px;" +
+      "cursor:pointer;padding:3px 12px;font-size:14px;font-weight:700;font-family:" + AN;
+    x.onclick = () => p.remove();
+    h.appendChild(t); h.appendChild(x);
+    const pre = document.createElement("pre");
+    pre.id = "wbg-script-body";
+    pre.style.cssText = "flex:1 1 auto;overflow:auto;min-height:0;margin:9px 0 0;white-space:pre;" +
+      "font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.45;color:" + INK;
+    pre.textContent = text;
+    p.appendChild(h); p.appendChild(pre);
+    document.body.appendChild(p);
+    if (!window.__wbgScriptEsc) {
+      window.__wbgScriptEsc = 1;
+      window.addEventListener("keydown", ev => {
+        if (ev.key === "Escape") { const q2 = document.getElementById("wbg-script-panel"); if (q2) q2.remove(); }
+      });
+    }
   }
   function elemsOf(st) {
     const order = [], seen = {};
@@ -9897,16 +9922,16 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         const st = cif ? parseCif(cif) : null;
         if (!st) return flash("no structure available for this view");
         const q = CHARGEOF[S.view] || 0;
-        dlText(fnbase + "_q" + (q > 0 ? "p" + q : q < 0 ? "m" + (-q) : "0") + ".in", qeInput(S.mp, st, S.view, hostName, ctx.dname));
-        flash((S.view === "dft" || (S.view in CHARGEOF)) ? "downloaded this work's DFT input" : "downloaded a reproduction DFT input (MLFF-screened defect)");
+        showScript("DFT input - " + fnbase + " (q = " + q + ")", qeInput(S.mp, st, S.view, hostName, ctx.dname));
+        flash((S.view === "dft" || (S.view in CHARGEOF)) ? "this work's DFT input" : "a reproduction DFT input (MLFF-screened defect)");
       };
       const lb = root.querySelector("#db-mlin");
       if (lb) lb.onclick = () => {
         const cif = S.view === "__bulk__" ? bulk : (dpk && dpk[S.view]);
         if (!cif) return flash("no structure available for this view");
         const model = S.view === "__bulk__" ? "bulk" : S.view.replace(/^dft.*/, "DFT");
-        dlText(fnbase + "_MLFF_input.txt", mlffInput(cif, hostName, ctx.dname, model));
-        flash("downloaded structure.cif + ASE relaxation script");
+        showScript("MLFF input - " + fnbase, mlffInput(cif, hostName, ctx.dname, model));
+        flash("structure.cif + the relaxation script");
       };
       send();
 
