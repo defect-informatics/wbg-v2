@@ -10970,7 +10970,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     let hi = 0;
     for (const m in per) for (const d in per[m]) { const e = per[m][d].e; if (e != null && LO[m] != null) hi = Math.max(hi, Math.min(3, e - LO[m])); }
     hi = Math.max(hi, 0.2);
-    const W = 920, H = 210, L = 52, R = 150, T = 12, B = 44;
+    const W = 980, H = 226, L = 52, R = 208, T = 26, B = 44;
     const X = i => L + i / Math.max(1, dists.length - 1) * (W - L - R);
     const Y = v => T + (1 - v / hi) * (H - T - B);
     let g = "";
@@ -11007,7 +11007,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     });
     return '<svg width="' + W + '" height="' + H + '" style="display:block">' +
       '<rect x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="none" stroke="' + BORD + '"/>' + g + ax + lg +
-      '<text x="' + (L + (W - L - R) / 2) + '" y="12" text-anchor="middle" font-size="14.0" fill="' + MUT + '">ΔE vs each model\'s OWN minimum (eV, clipped at 3) — filled dot = converged, legend arrow = that model\'s winning distortion, hover a point for its numbers</text></svg>';
+      '<text x="' + (L + (W - L - R) / 2) + '" y="14" text-anchor="middle" font-size="14.0" fill="' + MUT + '">ΔE vs each model\'s OWN minimum (eV, clipped at 3) — filled dot = converged, legend arrow = that model\'s winning distortion, hover a point for its numbers</text></svg>';
   }
   window.__wbgSnB = async function (mp, display, panel) {
     const E = await ens(mp);
