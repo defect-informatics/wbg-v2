@@ -10957,11 +10957,18 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   function curveSVG(per) {
     const dists = [...new Set([].concat(...Object.values(per).map(m => Object.keys(m))))]
       .sort((a, b) => distOrder(a) - distOrder(b));
-    let lo = 1/0;
-    for (const m in per) for (const d in per[m]) { const e = per[m][d].e; if (e != null && e < lo) lo = e; }
-    if (!isFinite(lo)) return "";
+    // dE is measured against EACH MODEL'S OWN minimum: every MLFF has its own absolute
+    // energy zero, so a cross-model reference reports a reference offset as physics (it put
+    // MACE-MPA-0 3.18 eV above the others on mp-830 Li_i and pinned it to the clip line).
+    const LO = {}, WIN = {};
+    for (const m in per) {
+      let lm = 1/0, wd = null;
+      for (const d in per[m]) { const e = per[m][d].e; if (e != null && e < lm) { lm = e; wd = d; } }
+      if (isFinite(lm)) { LO[m] = lm; WIN[m] = wd; }
+    }
+    if (!Object.keys(LO).length) return "";
     let hi = 0;
-    for (const m in per) for (const d in per[m]) { const e = per[m][d].e; if (e != null) hi = Math.max(hi, Math.min(3, e - lo)); }
+    for (const m in per) for (const d in per[m]) { const e = per[m][d].e; if (e != null && LO[m] != null) hi = Math.max(hi, Math.min(3, e - LO[m])); }
     hi = Math.max(hi, 0.2);
     const W = 920, H = 210, L = 52, R = 150, T = 12, B = 44;
     const X = i => L + i / Math.max(1, dists.length - 1) * (W - L - R);
@@ -10972,10 +10979,15 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       let path = "", pts = "";
       dists.forEach((d, i) => {
         const r = per[m][d];
-        if (!r || r.e == null) return;
-        const v = Math.min(3, r.e - lo);
+        if (!r || r.e == null || LO[m] == null) return;
+        const dv = r.e - LO[m], v = Math.min(3, dv);
         path += (path ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1);
-        pts += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="' + (r.conv ? 2.6 : 1.6) + '" fill="' + col + '"' + (r.conv ? "" : ' opacity="0.35"') + "/>";
+        const tip = (LABS[m] || m) + "  ·  " + distShort(d) + "\n\u0394E = " + dv.toFixed(4) +
+          " eV above this model's own minimum\nE = " + r.e.toFixed(4) + " eV" +
+          (r.fmax != null ? "\nfmax = " + Number(r.fmax).toFixed(3) + " eV/\u00c5" : "") +
+          (r.n != null ? "\nsteps = " + r.n : "") +
+          "\n" + (r.conv ? "converged" : "NOT converged");
+        pts += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="' + (r.conv ? 2.6 : 1.6) + '" fill="' + col + '"' + (r.conv ? "" : ' opacity="0.35"') + '><title>' + esc(tip) + '</title></circle>';
       });
       g += '<path d="' + path + '" fill="none" stroke="' + col + '" stroke-width="1.5" opacity="0.85"/>' + pts;
     });
@@ -10990,11 +11002,12 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     let lg = "";
     Object.keys(per).sort().forEach((m, i) => {
       lg += '<rect x="' + (W - R + 12) + '" y="' + (T + 8 + i * 17) + '" width="14" height="3.5" fill="' + (COLS[m] || "#888") + '"/>' +
-            '<text x="' + (W - R + 31) + '" y="' + (T + 13 + i * 17) + '" font-size="14.0" fill="#1a1e2e">' + esc(LABS[m] || m) + "</text>";
+            '<text x="' + (W - R + 31) + '" y="' + (T + 13 + i * 17) + '" font-size="14.0" fill="#1a1e2e">' + esc(LABS[m] || m) +
+            '<tspan fill="' + MUT + '" font-size="12.5"> \u2192 ' + esc(WIN[m] ? distShort(WIN[m]) : "-") + '</tspan></text>";
     });
     return '<svg width="' + W + '" height="' + H + '" style="display:block">' +
       '<rect x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="none" stroke="' + BORD + '"/>' + g + ax + lg +
-      '<text x="' + (L + (W - L - R) / 2) + '" y="12" text-anchor="middle" font-size="14.0" fill="' + MUT + '">ΔE vs ensemble minimum (eV, clipped at 3) — filled dot = converged</text></svg>';
+      '<text x="' + (L + (W - L - R) / 2) + '" y="12" text-anchor="middle" font-size="14.0" fill="' + MUT + '">ΔE vs each model\'s OWN minimum (eV, clipped at 3) — filled dot = converged, legend arrow = that model\'s winning distortion, hover a point for its numbers</text></svg>';
   }
   window.__wbgSnB = async function (mp, display, panel) {
     const E = await ens(mp);
@@ -11008,7 +11021,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     div.id = "wbg-snb-block";
     div.style.cssText = "margin-top:12px;border-top:1px solid " + BORD + ";padding-top:9px";
     const nruns = Object.values(per).reduce((a, m) => a + Object.keys(m).length, 0);
-    div.innerHTML = '<div style="font-weight:800;font-size:14.0px;color:#0e7490">ShakeNBreak bond-distortion ensemble — ' + nruns + " relaxations, 6 MLFFs</div>" +
+    div.innerHTML = '<div style="font-weight:800;font-size:14.0px;color:#0e7490">ShakeNBreak bond-distortion ensemble — ' + nruns + " relaxations, " + Object.keys(per).length + " MLFF" + (Object.keys(per).length === 1 ? "" : "s") + (Object.keys(per).length < 6 ? " (of 6 — the rest have no published ensemble for this defect)" : "") + "</div>" +
       '<div id="snb-curve" style="margin-top:6px"></div>' +
       '<div style="display:flex;gap:8px;align-items:center;margin-top:6px">' +
       '<label style="font-size:14.0px;color:' + MUT + '">distortion movie <select id="snb-model" style="font-size:14.0px;padding:3px 7px;border:1px solid ' + BORD + ';border-radius:7px"></select> <select id="snb-sel" style="font-size:14.0px;padding:3px 7px;border:1px solid ' + BORD + ';border-radius:7px"><option value="">— pick a distortion —</option></select></label>' +
