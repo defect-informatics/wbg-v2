@@ -11042,7 +11042,6 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       '<div id="snb-curve" style="margin-top:6px"></div>' +
       '<div style="display:flex;gap:8px;align-items:center;margin-top:6px">' +
       '<label style="font-size:14.0px;color:' + MUT + '">distortion movie <select id="snb-model" style="font-size:14.0px;padding:3px 7px;border:1px solid ' + BORD + ';border-radius:7px"></select> <select id="snb-sel" style="font-size:14.0px;padding:3px 7px;border:1px solid ' + BORD + ';border-radius:7px"><option value="">— pick a distortion —</option></select></label>' +
-      '<button id="snb-play" style="font-size:14.0px;padding:3px 10px;border:1px solid ' + BORD + ';border-radius:7px;background:#fff;cursor:pointer">\u25b6 walk distortions</button>' +
       '<div id="snb-meta" style="font-size:14.0px;color:' + MUT + '"></div></div>' +
       '<div id="snb-frame-slot"></div>';
     const old = panel.querySelector("#wbg-snb-block");
@@ -11113,27 +11112,6 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       svgEl.querySelectorAll("circle.snb-hit").forEach(c => {
         c.addEventListener("click", () => pick(c.dataset.m, c.dataset.d, c.getAttribute("cx")));
       });
-      const btn = div.querySelector("#snb-play");
-      let timer = null;
-      const stopWalk = () => { if (timer) clearInterval(timer); timer = null; if (btn) btn.textContent = "\u25b6 walk distortions"; };
-      if (btn) btn.addEventListener("click", () => {
-        if (timer) { stopWalk(); return; }
-        const opts = [].slice.call(sel.options).filter(o => o.value);
-        if (!opts.length) return;
-        let i = Math.max(0, opts.map(o => o.value).indexOf(sel.value));
-        btn.textContent = "\u23f8 stop";
-        const stepOn = () => {
-          const o = opts[i % opts.length];
-          const m = msel.value || Object.keys(per)[0];
-          const hit = svgEl.querySelector('circle.snb-hit[data-m="' + m + '"][data-d="' + o.value + '"]');
-          pick(null, o.value, hit ? hit.getAttribute("cx") : null);
-          i++;
-        };
-        stepOn();
-        timer = setInterval(stepOn, 2800);
-      });
-      const obs = new MutationObserver(() => { if (!document.body.contains(div)) { stopWalk(); obs.disconnect(); } });
-      obs.observe(document.body, { childList: true, subtree: true });
     }
   };
 })();
