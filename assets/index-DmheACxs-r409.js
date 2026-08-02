@@ -9511,7 +9511,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     h.style.cssText = "display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:0 0 7px;border-bottom:1px solid " + HAIR2;
     const t = document.createElement("div");
     t.style.cssText = "font-weight:800;color:" + TEAL;
-    t.textContent = title;
+    t.innerHTML = title;
     const x = document.createElement("button");
     x.id = "wbg-script-close";
     x.textContent = "\u2715 close";
@@ -9914,6 +9914,10 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       };
       const hostName = (hostIndex && hostIndex[S.mp]) || S.mp;
       const fnbase = String(hostName).replace(/[^A-Za-z0-9]/g, "") + "_" + String(ctx.dname).replace(/[^A-Za-z0-9+]/g, "").replace(/\+/g, "-");
+      // a title is read, not saved: name the defect the way the rest of the site does
+      const dsub = x => String(x).replace(/([A-Za-z])_([A-Za-z0-9]+)/g, "$1<sub>$2</sub>");
+      const fsub = x => String(x).replace(/([A-Za-z\)])(\d+)/g, "$1<sub>$2</sub>");
+      const where = () => dsub(ctx.dname) + " in " + fsub(hostName) + " (" + S.mp + ")";
       const stat = root.querySelector("#db-instat");
       const flash = m => { if (stat) { stat.textContent = m; setTimeout(() => { if (stat.textContent === m) stat.textContent = ""; }, 4000); } };
       const qb = root.querySelector("#db-qein");
@@ -9922,7 +9926,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         const st = cif ? parseCif(cif) : null;
         if (!st) return flash("no structure available for this view");
         const q = CHARGEOF[S.view] || 0;
-        showScript("DFT input - " + fnbase + " (q = " + q + ")", qeInput(S.mp, st, S.view, hostName, ctx.dname));
+        showScript(where() + " \u2014 DFT input, q = " + q, qeInput(S.mp, st, S.view, hostName, ctx.dname));
         flash((S.view === "dft" || (S.view in CHARGEOF)) ? "this work's DFT input" : "a reproduction DFT input (MLFF-screened defect)");
       };
       const lb = root.querySelector("#db-mlin");
@@ -9930,7 +9934,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         const cif = S.view === "__bulk__" ? bulk : (dpk && dpk[S.view]);
         if (!cif) return flash("no structure available for this view");
         const model = S.view === "__bulk__" ? "bulk" : S.view.replace(/^dft.*/, "DFT");
-        showScript("MLFF input - " + fnbase, mlffInput(cif, hostName, ctx.dname, model));
+        showScript(where() + " \u2014 MLFF input (structure + relaxation script)", mlffInput(cif, hostName, ctx.dname, model));
         flash("structure.cif + the relaxation script");
       };
       send();
