@@ -11003,7 +11003,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     Object.keys(per).sort().forEach((m, i) => {
       lg += '<rect x="' + (W - R + 12) + '" y="' + (T + 8 + i * 17) + '" width="14" height="3.5" fill="' + (COLS[m] || "#888") + '"/>' +
             '<text x="' + (W - R + 31) + '" y="' + (T + 13 + i * 17) + '" font-size="14.0" fill="#1a1e2e">' + esc(LABS[m] || m) +
-            '<tspan fill="' + MUT + '" font-size="12.5"> \u2192 ' + esc(WIN[m] ? distShort(WIN[m]) : "-") + '</tspan></text>";
+            '<tspan fill="' + MUT + '" font-size="12.5"> \u2192 ' + esc(WIN[m] ? distShort(WIN[m]) : "-") + '</tspan></text>';
     });
     return '<svg width="' + W + '" height="' + H + '" style="display:block">' +
       '<rect x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="none" stroke="' + BORD + '"/>' + g + ax + lg +
