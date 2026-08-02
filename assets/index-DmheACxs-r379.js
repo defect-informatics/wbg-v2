@@ -11161,6 +11161,12 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
       var mu = '<div style="color:'+MUT+';margin-bottom:2px">&mu;: ';
       Object.keys(C.mu_eV||{}).forEach(function(el){ mu += sb('&Delta;n_'+el)+' = '+C.dn[el]+', &mu;('+el+') = '+f4(C.mu_eV[el])+' eV &nbsp; '; });
       h += mu + '&rArr; &Sigma;(&minus;n&mu;) = <b>'+f4(C.mu_term_eV)+' eV</b></div>';
+      var cp = (H.caps||{})[k] || {};
+      var lim = Object.keys(C.dn||{}).map(function(el){
+        return cp[el] ? sb(el)+' &rarr; '+fsub(cp[el])
+                      : sb(el)+' &rarr; <span style="color:'+MUT+'">host element, fixed by this vertex</span>';
+      });
+      if (lim.length) h += '<div style="color:'+MUT+';margin-bottom:2px">limiting phase per element: '+lim.join(' &nbsp;&middot;&nbsp; ')+'</div>';
       h += '<div style="overflow-x:auto;padding-right:14px"><table style="border-collapse:collapse;white-space:nowrap">';
       h += '<tr>'+["q","E<sub>tot</sub> (eV)","E<sub>lat</sub>","&minus;q&middot;&Delta;V","E<sub>corr</sub> (used)","FNV (cross-check)","verdict","q&middot;&Delta;E<sub>VBM</sub>","E<sub>f</sub>@VBM (eV)"].map(function(cc){return '<th style="border-bottom:1px solid '+HAIR+';padding:2px 10px;text-align:right;font-weight:600">'+cc+"</th>";}).join("")+"</tr>";
       ["2","1","0","-1","-2"].forEach(function(q){
