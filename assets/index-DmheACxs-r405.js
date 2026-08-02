@@ -11479,3 +11479,142 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
   setTimeout(scan, 400);
   setInterval(scan, 1500);   /* belt-and-braces: the observer can miss a fast re-mount */
 })();
+;(function(){
+  /* __wbgSynthUX — makes the "Synthesis — …" card interactive.
+     Appended IIFE (house pattern: __wbg*Installed guard + MutationObserver), because a tab
+     switch or a host switch REMOVES the card from the DOM (the r356 lesson).
+     It DRIVES the existing React step rows by clicking them - it never re-renders the card
+     and never invents a number, so every value on screen still comes from hostinfo. */
+  if (window.__wbgSynthUXInstalled) return;
+  window.__wbgSynthUXInstalled = 1;
+
+  var RAIL = 'wbg-synth-rail', AUTO_MS = 4200;
+  var timer = null, playing = false;
+
+  function reduced(){ try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; } }
+  function css(){
+    if (document.getElementById('wbg-synth-css')) return;
+    var s = document.createElement('style'); s.id = 'wbg-synth-css';
+    s.textContent =
+      '.wbg-step-row{transition:border-color .25s ease,background .25s ease,transform .18s ease,box-shadow .25s ease}'+
+      '.wbg-step-row:hover{transform:translateX(3px);box-shadow:0 2px 10px rgba(0,0,0,.07)}'+
+      '.wbg-step-row .wbg-step-body{animation:wbgStepIn .34s ease both}'+
+      '@keyframes wbgStepIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}'+
+      '.wbg-synth-art{transition:opacity .3s ease}'+
+      '.wbg-synth-art.wbg-fade{opacity:.15}'+
+      '.'+RAIL+'{display:flex;align-items:center;gap:10px;margin:12px 0 2px}'+
+      '.'+RAIL+' .seg{flex:1 1 auto;height:6px;border-radius:99px;background:var(--wbg-border,#d4d8e0);cursor:pointer;position:relative;overflow:hidden;transition:background .25s ease}'+
+      '.'+RAIL+' .seg.done{background:var(--wbg-accent,#0e7490)}'+
+      '.'+RAIL+' .seg .fill{position:absolute;inset:0;width:0;background:var(--wbg-accent,#0e7490);border-radius:99px}'+
+      '.'+RAIL+' .seg:hover{background:var(--wbg-accent,#0e7490);opacity:.55}'+
+      '.'+RAIL+' button{padding:4px 12px;font-size:13.5px;font-weight:700;border-radius:99px;cursor:pointer;'+
+        'border:1px solid var(--wbg-accent,#0e7490);background:var(--wbg-panel,#fff);color:var(--wbg-accent,#0e7490);white-space:nowrap}'+
+      '.'+RAIL+' button:hover{background:var(--wbg-accent,#0e7490);color:var(--wbg-panel,#fff)}'+
+      '.'+RAIL+' .count{font-size:13px;font-weight:700;color:var(--wbg-muted,#5b6478);white-space:nowrap;min-width:82px;text-align:right}';
+    document.head.appendChild(s);
+  }
+
+  function card(){
+    var d = document.querySelectorAll('div');
+    for (var i=0;i<d.length;i++){
+      var f = d[i].firstElementChild;
+      if (f && /^Synthesis\s*[—-]/.test((f.textContent||'').trim())) return d[i];
+    }
+    return null;
+  }
+  function rows(c){
+    return [].slice.call(c.querySelectorAll('div')).filter(function(e){
+      var h = e.firstElementChild && e.firstElementChild.nextElementSibling;
+      return h && /^Step\s+\d+\s*:/.test((h.firstElementChild && h.firstElementChild.textContent || '').trim());
+    });
+  }
+  function activeIndex(rw){
+    for (var i=0;i<rw.length;i++){
+      var b = rw[i].firstElementChild && rw[i].firstElementChild.nextElementSibling;
+      if (b && b.children.length > 1) return i;      /* the open row is the one with a body */
+    }
+    return 0;
+  }
+  function art(c){
+    var cols = c.children[1];                        /* the card body */
+    if (!cols) return null;
+    var grid = cols.firstElementChild;
+    var right = grid && grid.children[1];
+    return right ? right.firstElementChild : null;
+  }
+
+  function paint(c){
+    var rw = rows(c); if (!rw.length) return;
+    var i = activeIndex(rw), n = rw.length;
+    rw.forEach(function(r,k){
+      r.classList.add('wbg-step-row');
+      var body = r.firstElementChild && r.firstElementChild.nextElementSibling;
+      if (body && body.children.length > 1 && body.children[1]) body.children[1].classList.add('wbg-step-body');
+      if (k===i) r.setAttribute('aria-current','step'); else r.removeAttribute('aria-current');
+    });
+    var a = art(c); if (a) a.classList.add('wbg-synth-art');
+    var rail = c.querySelector('.'+RAIL);
+    if (!rail){
+      rail = document.createElement('div'); rail.className = RAIL;
+      var play = document.createElement('button'); play.type='button'; play.dataset.role='play';
+      play.textContent = '▶ play';
+      play.onclick = function(ev){ ev.stopPropagation(); playing ? stop() : start(c); };
+      rail.appendChild(play);
+      for (var k=0;k<n;k++){
+        (function(k){
+          var seg = document.createElement('div'); seg.className='seg'; seg.dataset.k=k;
+          seg.title = 'Step '+(k+1);
+          seg.onclick = function(ev){ ev.stopPropagation(); stop(); go(c,k); };
+          rail.appendChild(seg);
+        })(k);
+      }
+      var cnt = document.createElement('div'); cnt.className='count'; rail.appendChild(cnt);
+      var host = rw[rw.length-1].parentElement;
+      host.insertBefore(rail, rw[rw.length-1].nextSibling);
+    }
+    [].slice.call(rail.querySelectorAll('.seg')).forEach(function(s,k){
+      s.classList.toggle('done', k<=i);
+    });
+    var cnt = rail.querySelector('.count'); if (cnt) cnt.textContent = 'step '+(i+1)+' of '+n;
+    var pb = rail.querySelector('[data-role=play]'); if (pb) pb.textContent = playing ? '❚❚ pause' : '▶ play';
+  }
+
+  function go(c, k){
+    var rw = rows(c); if (!rw[k]) return;
+    var a = art(c);
+    if (a && !reduced()){ a.classList.add('wbg-fade'); setTimeout(function(){ a.classList.remove('wbg-fade'); }, 300); }
+    rw[k].click();
+    setTimeout(function(){ paint(c); }, 60);
+  }
+  function start(c){
+    if (reduced()) return;
+    playing = true; paint(c);
+    timer = setInterval(function(){
+      var cc = card(); if (!cc){ stop(); return; }
+      var rw = rows(cc); var i = activeIndex(rw);
+      if (i >= rw.length-1){ go(cc, 0); } else { go(cc, i+1); }
+    }, AUTO_MS);
+  }
+  function stop(){
+    playing = false; if (timer){ clearInterval(timer); timer = null; }
+    var c = card(); if (c) paint(c);
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.metaKey||e.ctrlKey||e.altKey) return;
+    var tag = (e.target && e.target.tagName || '').toLowerCase();
+    if (tag==='input'||tag==='textarea'||tag==='select') return;
+    var c = card(); if (!c) return;
+    var r = c.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;      /* only when the card is on screen */
+    var rw = rows(c); var i = activeIndex(rw);
+    if (e.key==='ArrowRight'){ stop(); go(c, Math.min(rw.length-1, i+1)); e.preventDefault(); }
+    if (e.key==='ArrowLeft'){ stop(); go(c, Math.max(0, i-1)); e.preventDefault(); }
+  });
+
+  function scan(){ css(); var c = card(); if (c) paint(c); }
+  var t=null;
+  new MutationObserver(function(){ clearTimeout(t); t=setTimeout(scan,150); })
+    .observe(document.body,{childList:true,subtree:true});
+  setTimeout(scan,500); setInterval(scan,2000);
+})();
