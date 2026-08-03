@@ -5978,13 +5978,14 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       if(!infoEl){
         infoEl = document.createElement("div");
         infoEl.id = "c_definfo";
-        infoEl.style.cssText = "font-family:var(--wbg-font,sans-serif);font-size:13.5px;padding:10px 14px;margin:8px 0 12px;background:var(--wbg-surface,#f7f8fa);border:1px solid var(--wbg-border,#d4d8e0);border-radius:10px;line-height:1.5;color:var(--wbg-ink,#1a1e2e)";
+        infoEl.style.cssText = "font-family:var(--wbg-font,sans-serif);font-size:13.5px;padding:12px 16px;margin:8px 0 12px;background:var(--wbg-surface,#f7f8fa);border:1px solid var(--wbg-border,#d4d8e0);border-radius:10px;line-height:1.5;color:var(--wbg-ink,#1a1e2e)";
         q("c_defwrap").insertBefore(infoEl, q("c_movrow"));
       }
       infoEl.style.display = "block";
       var modelName = (q("c_model") && q("c_model").value) || "MLFF";
-      var html = '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:4px">\u03a3 calculation breakdown &mdash; ' + sub(r.defect) + ' (' + esc(modelName) + ')</div>';
+      var html = '<div style="font-weight:700;font-size:14px;color:var(--wbg-accent,#0e7490);margin-bottom:4px">\u03a3 calculation breakdown &mdash; ' + sub(r.defect) + ' (' + esc(modelName) + ')</div>';
       html += '<div style="font-size:12.5px;color:var(--wbg-muted,#6b7280)">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;&middot;&nbsp; read from calculation record</div>';
+      
       var details = [];
       if (r.Ef_min !== undefined && r.Ef_min !== null) details.push('<b>E<sub>f</sub> min:</b> ' + r.Ef_min + ' eV');
       if (r.Ef_max !== undefined && r.Ef_max !== null) details.push('<b>E<sub>f</sub> max:</b> ' + r.Ef_max + ' eV');
@@ -5996,6 +5997,26 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         });
       }
       if (details.length) html += '<div style="margin-top:6px;font-size:13px;display:flex;gap:16px;flex-wrap:wrap">' + details.join(' &nbsp;&middot;&nbsp; ') + '</div>';
+
+      var cpList = [];
+      if (lastResult && lastResult.log) {
+        lastResult.log.forEach(function(ln){
+          if (ln.indexOf("competing phase") !== -1) {
+            var p = ln.replace(/^.*competing phase\s*/i, "").trim();
+            if (p) cpList.push(fmtLog(p));
+          } else if (ln.indexOf("Downloaded") !== -1 && ln.indexOf("competing phases") !== -1) {
+            cpList.unshift('<b>Summary:</b> ' + fmtLog(ln));
+          }
+        });
+      }
+      if (cpList.length) {
+        html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0);font-size:12.5px;color:var(--wbg-ink,#1a1e2e)">' +
+                '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:5px">Competing Phases & Vertices (bounding equilibria)</div>' +
+                '<div style="display:flex;flex-wrap:wrap;gap:8px;color:var(--wbg-ink,#1a1e2e)">' +
+                cpList.map(function(item){ return '<span style="background:var(--wbg-panel,#fff);padding:3px 9px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-size:12px">' + item + '</span>'; }).join('') +
+                '</div></div>';
+      }
+
       infoEl.innerHTML = html;
       typeWrite(infoEl);
 
