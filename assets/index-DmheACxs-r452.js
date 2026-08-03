@@ -5744,8 +5744,29 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       '</div>' +
     '</div>';
 
-  function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
-  function sub(s){ return esc(s).replace(/([A-Za-z])_([A-Za-z0-9]+)/g,'$1<sub>$2</sub>'); }
+  function esc(s){ return String(s||"").replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function sub(s){ return esc(s||"").replace(/([A-Za-z])_([A-Za-z0-9]+)/g,'$1<sub>$2</sub>'); }
+  function fsub(s){ return String(s||"").replace(/([A-Za-z\)])(\d+)/g, "$1<sub>$2</sub>"); }
+
+    function typeWrite(pane){
+      if (!pane) return;
+      var it = document.createNodeIterator(pane, NodeFilter.SHOW_TEXT), nodes = [], nd;
+      while ((nd = it.nextNode())) if (nd.textContent.trim()) nodes.push([nd, nd.textContent]);
+      var total = nodes.reduce(function(a, p){ return a + p[1].length; }, 0);
+      if (!total) return;
+      var chunk = Math.max(2, Math.ceil(total / 180));
+      nodes.forEach(function(p){ p[0].textContent = ""; });
+      var i = 0, j = 0;
+      var tick = setInterval(function(){
+        var left = chunk;
+        while (left > 0 && i < nodes.length){
+          var full = nodes[i][1], take = Math.min(left, full.length - j);
+          j += take; left -= take; nodes[i][0].textContent = full.slice(0, j);
+          if (j >= full.length){ i++; j = 0; }
+        }
+        if (i >= nodes.length) clearInterval(tick);
+      }, 12);
+    }
   function num(v,d){ var n=parseFloat(v); return isNaN(n)?d:n; }
   // format a log / progress line with real subscripts (defect names, E_f, formulas)
   function fmtLog(s){
@@ -5844,26 +5865,6 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   }
 
   function wire(root){
-    function typeWrite(pane){
-      if (!pane) return;
-      var it = document.createNodeIterator(pane, NodeFilter.SHOW_TEXT), nodes = [], nd;
-      while ((nd = it.nextNode())) if (nd.textContent.trim()) nodes.push([nd, nd.textContent]);
-      var total = nodes.reduce(function(a, p){ return a + p[1].length; }, 0);
-      if (!total) return;
-      var chunk = Math.max(2, Math.ceil(total / 180));
-      nodes.forEach(function(p){ p[0].textContent = ""; });
-      var i = 0, j = 0;
-      var tick = setInterval(function(){
-        var left = chunk;
-        while (left > 0 && i < nodes.length){
-          var full = nodes[i][1], take = Math.min(left, full.length - j);
-          j += take; left -= take; nodes[i][0].textContent = full.slice(0, j);
-          if (j >= full.length){ i++; j = 0; }
-        }
-        if (i >= nodes.length) clearInterval(tick);
-      }, 12);
-    }
-
     var q=function(id){ return root.querySelector("#"+id); };
     var FORM_TXT=["c_key","c_model","c_sc","c_fmax","c_steps","c_eah","c_dopants","c_custom","c_mpe"];
     var FORM_CHK=["c_vac","c_anti","c_int","c_dop","c_env"];
