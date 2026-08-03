@@ -5748,13 +5748,15 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   function sub(s){ return esc(s||"").replace(/([A-Za-z])_([A-Za-z0-9]+)/g,'$1<sub>$2</sub>'); }
   function fsub(s){ return String(s||"").replace(/([A-Za-z\)])(\d+)/g, "$1<sub>$2</sub>"); }
 
+  function f4(v){ if(v===null||v===undefined||isNaN(v)) return "&mdash;"; var n=parseFloat(v); return (Math.abs(n)<1e-4&&n!==0)?n.toExponential(3):n.toFixed(2); }
+
     function typeWrite(pane){
       if (!pane) return;
       var it = document.createNodeIterator(pane, NodeFilter.SHOW_TEXT), nodes = [], nd;
       while ((nd = it.nextNode())) if (nd.textContent.trim()) nodes.push([nd, nd.textContent]);
       var total = nodes.reduce(function(a, p){ return a + p[1].length; }, 0);
       if (!total) return;
-      var chunk = Math.max(2, Math.ceil(total / 180));
+      var chunk = Math.max(2, Math.ceil(total / 240));
       nodes.forEach(function(p){ p[0].textContent = ""; });
       var i = 0, j = 0;
       var tick = setInterval(function(){
@@ -5765,7 +5767,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           if (j >= full.length){ i++; j = 0; }
         }
         if (i >= nodes.length) clearInterval(tick);
-      }, 12);
+      }, 8);
     }
   function num(v,d){ var n=parseFloat(v); return isNaN(n)?d:n; }
   // format a log / progress line with real subscripts (defect names, E_f, formulas)
@@ -5966,80 +5968,59 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       try{ if(q("c_bar")) q("c_bar").style.display="none"; }catch(_){}
       try{ if(q("c_desc")) q("c_desc").style.display="none"; }catch(_){}
       q("c_defwrap").style.display="block";
-      q("c_defname").style.display="block";
-      q("c_defview").style.display="block";
-      q("c_defname").innerHTML="Optimized structure — "+sub(r.defect);
 
       frames = (r.traj && r.traj.length>1) ? r.traj.slice() : [r.cif].filter(Boolean);
-      var hasMovie = frames.length>1;
-      q("c_movrow").style.display = hasMovie ? "flex" : "none";
-      q("c_frame").max = String(Math.max(0, frames.length-1));
-      fi = frames.length-1;
-      q("c_frame").value = fi;
+      var hasMovie = frames.length > 0;
 
-      mvUnmount(defInst);
-      try{ defInst = mvMount(q("c_defview"), r.cif || frames[fi], lastResult&&lastResult.bulk_cif, String(r.defect).split("+").length, 420); }catch(e){ defInst=null; }
-      if(hasMovie) fcount(" (relaxed)");
+      // ELIMINATE DUPLICATE 3D VIEWER: If trajectory iframe has movie, use it; otherwise use top 3D viewer
+      if (hasMovie) {
+        q("c_defname").style.display = "none";
+        q("c_defview").style.display = "none";
+        q("c_movrow").style.display = "none";
+      } else {
+        q("c_defname").style.display = "block";
+        q("c_defview").style.display = "block";
+        q("c_movrow").style.display = "none";
+        q("c_defname").innerHTML = "Optimized structure — " + sub(r.defect);
+        mvUnmount(defInst);
+        try{ defInst = mvMount(q("c_defview"), r.cif || frames[fi], lastResult&&lastResult.bulk_cif, String(r.defect).split("+").length, 420); }catch(e){ defInst=null; }
+      }
 
+      // BUILD DEFECT EXPLORER STYLE TYPEWRITER BREAKDOWN CARD (c_definfo)
       var infoEl = q("c_definfo");
       if(!infoEl){
         infoEl = document.createElement("div");
         infoEl.id = "c_definfo";
-        infoEl.style.cssText = "font-family:var(--wbg-font,sans-serif);font-size:13.5px;padding:12px 16px;margin:12px 0;background:var(--wbg-surface,#f7f8fa);border:1px solid var(--wbg-border,#d4d8e0);border-radius:10px;line-height:1.5;color:var(--wbg-ink,#1a1e2e)";
+        infoEl.style.cssText = "font-family:var(--wbg-font,sans-serif);font-size:13.5px;padding:14px 18px;margin:12px 0;background:var(--wbg-surface,#f7f8fa);border:1px solid var(--wbg-border,#d4d8e0);border-radius:10px;line-height:1.55;color:var(--wbg-ink,#1a1e2e)";
         q("c_defwrap").insertBefore(infoEl, q("c_defname"));
       }
       infoEl.style.display = "block";
       var modelName = (q("c_model") && q("c_model").value) || "MLFF";
-      var html = '<div style="font-weight:700;font-size:14px;color:var(--wbg-accent,#0e7490);margin-bottom:4px">\u03a3 calculation breakdown &mdash; ' + sub(r.defect) + ' (' + esc(modelName) + ')</div>';
-      html += '<div style="font-size:12.5px;color:var(--wbg-muted,#6b7280)">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;&middot;&nbsp; read from calculation record</div>';
+      var defTitle = sub(r.defect || "Defect");
       
-      var details = [];
-      if (r.Ef_min !== undefined && r.Ef_min !== null) details.push('<b>E<sub>f</sub> min:</b> ' + r.Ef_min + ' eV');
-      if (r.Ef_max !== undefined && r.Ef_max !== null) details.push('<b>E<sub>f</sub> max:</b> ' + r.Ef_max + ' eV');
+      var html = '<div style="font-weight:700;font-size:14px;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Σ calculation breakdown &mdash; ' + defTitle + ' (' + esc(modelName) + ')</div>';
+      html += '<div style="font-size:13px;font-weight:600;color:var(--wbg-ink,#1a1e2e);margin-bottom:2px">' + defTitle + ' &mdash; every number below is read from the calculation record, not recomputed</div>';
+      html += '<div style="font-size:12px;color:var(--wbg-muted,#6b7280);margin-bottom:8px">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials)</div>';
+
+      var renderedBlocks = 0;
       if (lastResult && lastResult.columns) {
         lastResult.columns.forEach(function(col){
           if (col !== "defect" && col !== "Ef_min" && col !== "Ef_max" && col !== "dn" && r[col] !== undefined && r[col] !== null) {
-            details.push('<b>' + sub(col) + ':</b> ' + r[col] + ' eV');
-          }
-        });
-      }
-      if (details.length) html += '<div style="margin-top:6px;font-size:13px;display:flex;gap:16px;flex-wrap:wrap">' + details.join(' &nbsp;&middot;&nbsp; ') + '</div>';
-
-      var vertices = [];
-      if (r.vertex || r.vertices) {
-        var vStr = r.vertex || r.vertices;
-        vertices.push('<b>Vertex:</b> ' + fsub(vStr.split("+").join(" + ")));
-      } else if (lastResult && lastResult.vertex_of) {
-        Object.keys(lastResult.vertex_of).forEach(function(vk){
-          vertices.push('<b>' + sub(vk) + ' vertex:</b> ' + fsub(String(lastResult.vertex_of[vk]).split("+").join(" + ")));
-        });
-      }
-
-      var cpList = [];
-      if (lastResult && lastResult.log) {
-        lastResult.log.forEach(function(ln){
-          if (ln.indexOf("competing phase") !== -1) {
-            var p = ln.replace(/^.*competing phase\s*/i, "").trim();
-            if (p) cpList.push(fsub(p));
+            var vtx = (lastResult.vertex_of && lastResult.vertex_of[col]) ? String(lastResult.vertex_of[col]) : "";
+            html += '<div style="margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
+                 + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(col) + ' vertex</b>'
+                 + (vtx ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(vtx.split("+").join(" + ")) + ')</span>' : '')
+                 + '</div>';
+            html += '<div style="overflow-x:auto"><table style="border-collapse:collapse;white-space:nowrap;font-size:13px">';
+            html += '<tr><td style="padding:2px 10px;color:var(--wbg-muted,#6b7280)">E<sub>f</sub> (eV)</td><td style="padding:2px 10px;text-align:right"><b>' + r[col] + '</b></td></tr>';
+            html += '</table></div>';
+            renderedBlocks++;
           }
         });
       }
 
-      if (vertices.length || cpList.length) {
-        html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0);font-size:12.5px;color:var(--wbg-ink,#1a1e2e)">';
-        if (vertices.length) {
-          html += '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Growth Condition Vertices (bounding phase combinations)</div>' +
-                  '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px">' +
-                  vertices.map(function(v){ return '<span style="background:var(--wbg-panel,#fff);padding:4px 10px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-family:monospace;font-size:12px">' + v + '</span>'; }).join('') +
-                  '</div>';
-        }
-        if (cpList.length) {
-          html += '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Competing Phases</div>' +
-                  '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
-                  cpList.map(function(item){ return '<span style="background:var(--wbg-panel,#fff);padding:3px 9px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-size:12px">' + item + '</span>'; }).join('') +
-                  '</div>';
-        }
-        html += '</div>';
+      if (!renderedBlocks && r.Ef_min !== undefined) {
+        html += '<div style="margin-top:6px;font-size:13px"><b>E<sub>f</sub> min:</b> ' + r.Ef_min + ' eV &nbsp;&middot;&nbsp; <b>E<sub>f</sub> max:</b> ' + r.Ef_max + ' eV</div>';
       }
 
       infoEl.innerHTML = html;
