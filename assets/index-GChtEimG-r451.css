@@ -16,4 +16,5 @@
 select{appearance:none !important;-webkit-appearance:none !important;background-color:#fff !important;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%235b6570' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>") !important;background-repeat:no-repeat !important;background-position:right 10px center !important;padding-top:8px !important;padding-bottom:11px !important;padding-right:28px !important;line-height:1.9 !important}
 
 /* hide redundant Optimized-structure viewer in Defect Calculator (keep relaxation trajectory) */
-#c_defname,#c_defview{display:none!important}
+#c_defname{font-size:15px;font-weight:700;margin:10px 0 6px 0;color:var(--wbg-ink,#1a1e2e);}
+#c_defview{min-height:420px;width:100%;margin:10px 0;border-radius:10px;overflow:hidden;border:1px solid var(--wbg-border,#e5e7eb);}

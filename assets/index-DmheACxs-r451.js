@@ -5962,7 +5962,8 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
     function selectDefect(r){
       stopMovie(); currentRow=r; SELROW=r;
-      try{ q("c_bar").style.display="none"; }catch(_){}
+      try{ if(q("c_bar")) q("c_bar").style.display="none"; }catch(_){}
+      try{ if(q("c_desc")) q("c_desc").style.display="none"; }catch(_){}
       q("c_defwrap").style.display="block";
       q("c_defname").style.display="block";
       q("c_defview").style.display="block";
