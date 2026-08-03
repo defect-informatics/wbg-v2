@@ -5794,12 +5794,12 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     var el = root.querySelector("#c_table");
     if(!rows || !rows.length){ el.innerHTML='<p class="muted">No defects were produced.</p>'; return; }
     cols = cols.filter(function(c){ return c!=="dn"; });
-    var nice={defect:"Defect",Ef_min:"E<sup>f</sup> min (eV)",Ef_max:"E<sup>f</sup> max (eV)"};
+    var nice={defect:"Defect",vertex:"Vertex",Ef_min:"E<sup>f</sup> min (eV)",Ef_max:"E<sup>f</sup> max (eV)"};
     var h='<div class="hint" style="margin-top:4px">Click a defect to view its relaxed structure and relaxation movie.</div><div class="tw"><table><thead><tr>';
     cols.forEach(function(c){ h+='<th>'+(nice[c]||(/-rich$/.test(c)?sub(c)+" (eV)":sub(c)))+'</th>'; });
     h+='</tr></thead><tbody>';
     rows.forEach(function(r,ri){ h+='<tr data-ri="'+ri+'">'; cols.forEach(function(c){ var v=r[c];
-      if(c==="defect") v=sub(v); else v=(v===null||v===undefined)?'&mdash;':v; h+='<td>'+v+'</td>'; }); h+='</tr>'; });
+      if(c==="defect") v=sub(v); else if(c==="vertex") v=fsub(String(v).split("+").join(" + ")); else v=(v===null||v===undefined)?'&mdash;':v; h+='<td>'+v+'</td>'; }); h+='</tr>'; });
     h+='</tbody></table></div>'; el.innerHTML=h;
     el.querySelectorAll("tbody tr").forEach(function(tr){
       tr.addEventListener("click", function(){
@@ -5998,23 +5998,41 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       }
       if (details.length) html += '<div style="margin-top:6px;font-size:13px;display:flex;gap:16px;flex-wrap:wrap">' + details.join(' &nbsp;&middot;&nbsp; ') + '</div>';
 
+      var vertices = [];
+      if (r.vertex || r.vertices) {
+        var vStr = r.vertex || r.vertices;
+        vertices.push('<b>Vertex:</b> ' + fsub(vStr.split("+").join(" + ")));
+      } else if (lastResult && lastResult.vertex_of) {
+        Object.keys(lastResult.vertex_of).forEach(function(vk){
+          vertices.push('<b>' + sub(vk) + ' vertex:</b> ' + fsub(String(lastResult.vertex_of[vk]).split("+").join(" + ")));
+        });
+      }
+
       var cpList = [];
       if (lastResult && lastResult.log) {
         lastResult.log.forEach(function(ln){
           if (ln.indexOf("competing phase") !== -1) {
             var p = ln.replace(/^.*competing phase\s*/i, "").trim();
-            if (p) cpList.push(fmtLog(p));
-          } else if (ln.indexOf("Downloaded") !== -1 && ln.indexOf("competing phases") !== -1) {
-            cpList.unshift('<b>Summary:</b> ' + fmtLog(ln));
+            if (p) cpList.push(fsub(p));
           }
         });
       }
-      if (cpList.length) {
-        html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0);font-size:12.5px;color:var(--wbg-ink,#1a1e2e)">' +
-                '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:5px">Competing Phases & Vertices (bounding equilibria)</div>' +
-                '<div style="display:flex;flex-wrap:wrap;gap:8px;color:var(--wbg-ink,#1a1e2e)">' +
-                cpList.map(function(item){ return '<span style="background:var(--wbg-panel,#fff);padding:3px 9px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-size:12px">' + item + '</span>'; }).join('') +
-                '</div></div>';
+
+      if (vertices.length || cpList.length) {
+        html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0);font-size:12.5px;color:var(--wbg-ink,#1a1e2e)">';
+        if (vertices.length) {
+          html += '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Growth Condition Vertices (bounding phase combinations)</div>' +
+                  '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px">' +
+                  vertices.map(function(v){ return '<span style="background:var(--wbg-panel,#fff);padding:4px 10px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:12px">' + v + '</span>'; }).join('') +
+                  '</div>';
+        }
+        if (cpList.length) {
+          html += '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Competing Phases</div>' +
+                  '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
+                  cpList.map(function(item){ return '<span style="background:var(--wbg-panel,#fff);padding:3px 9px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-size:12px">' + item + '</span>'; }).join('') +
+                  '</div>';
+        }
+        html += '</div>';
       }
 
       infoEl.innerHTML = html;
