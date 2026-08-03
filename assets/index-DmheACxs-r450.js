@@ -5731,7 +5731,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           '<div class="view" id="c_defview" style="display:none"></div>' +
           '<div class="row" id="c_movrow" style="display:none">' +
             '<button type="button" class="btn" id="c_play">▶ Play</button>' +
-            '<input type="range" id="c_frame" min="0" max="0" value="0" step="1" style="flex:1;min-width:120px;accent-color:var(--g)">' +
+            '<input type="range" id="c_frame" min="0" max="0" value="0" step="1" style="flex:0 0 240px;height:6px;cursor:pointer;accent-color:var(--wbg-accent,#0e7490)">' +
             '<span id="c_fcount" class="muted" style="font-variant-numeric:tabular-nums;min-width:92px;text-align:right"></span>' +
           '</div>' +
           '<div class="sub" id="c_convtitle" style="display:none;margin-top:10px">Relaxation trajectory &amp; convergence — structure, energy and max force vs step</div>' +
@@ -5962,18 +5962,23 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
     function selectDefect(r){
       stopMovie(); currentRow=r; SELROW=r;
+      try{ q("c_bar").style.display="none"; }catch(_){}
       q("c_defwrap").style.display="block";
+      q("c_defname").style.display="block";
+      q("c_defview").style.display="block";
       q("c_defname").innerHTML="Optimized structure — "+sub(r.defect);
+
       frames = (r.traj && r.traj.length>1) ? r.traj.slice() : [r.cif].filter(Boolean);
       var hasMovie = frames.length>1;
-      q("c_movrow").style.display = hasMovie ? "flex" : "none"; q("c_defname").style.display = "block"; q("c_defview").style.display = "block";
+      q("c_movrow").style.display = hasMovie ? "flex" : "none";
       q("c_frame").max = String(Math.max(0, frames.length-1));
-      fi = frames.length-1;                 // start on the relaxed structure
+      fi = frames.length-1;
       q("c_frame").value = fi;
+
       mvUnmount(defInst);
       try{ defInst = mvMount(q("c_defview"), r.cif || frames[fi], lastResult&&lastResult.bulk_cif, String(r.defect).split("+").length, 420); }catch(e){ defInst=null; }
       if(hasMovie) fcount(" (relaxed)");
-      try{ q("c_bar").style.display="none"; }catch(_){}
+
       var infoEl = q("c_definfo");
       if(!infoEl){
         infoEl = document.createElement("div");
