@@ -6023,7 +6023,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         if (vertices.length) {
           html += '<div style="font-weight:700;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Growth Condition Vertices (bounding phase combinations)</div>' +
                   '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px">' +
-                  vertices.map(function(v){ return '<span style="background:var(--wbg-panel,#fff);padding:4px 10px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:12px">' + v + '</span>'; }).join('') +
+                  vertices.map(function(v){ return '<span style="background:var(--wbg-panel,#fff);padding:4px 10px;border:1px solid var(--wbg-border,#d4d8e0);border-radius:6px;font-family:monospace;font-size:12px">' + v + '</span>'; }).join('') +
                   '</div>';
         }
         if (cpList.length) {
@@ -9607,7 +9607,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     const pre = document.createElement("pre");
     pre.id = "wbg-script-body";
     pre.style.cssText = "flex:1 1 auto;overflow:auto;min-height:0;margin:9px 0 0;white-space:pre;" +
-      "font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.45;color:" + INK;
+      "font-family:monospace;font-size:13px;line-height:1.45;color:" + INK;
     pre.textContent = text;
     p.appendChild(h); p.appendChild(pre);
     document.body.appendChild(p);
