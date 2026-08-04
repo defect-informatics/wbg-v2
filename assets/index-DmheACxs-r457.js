@@ -5995,97 +5995,101 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         q("c_defwrap").insertBefore(infoEl, q("c_defname"));
       }
       infoEl.style.display = "block";
-      var modelName = (q("c_model") && q("c_model").value) || "MLFF";
+      var modelName = (q("c_model") && q("c_model").value) || "MACE_MPA0";
       var defTitle = sub(r.defect || "Defect");
       
-      var html = '<div style="font-weight:700;font-size:14px;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Σ calculation breakdown &mdash; ' + defTitle + ' (' + esc(modelName) + ')</div>';
-      html += '<div style="font-size:13px;font-weight:600;color:var(--wbg-ink,#1a1e2e);margin-bottom:2px">' + defTitle + ' &mdash; every number below is read from the calculation record, not recomputed</div>';
-      html += '<div style="font-size:12px;color:var(--wbg-muted,#6b7280);margin-bottom:8px">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials)</div>';
+      function renderBreakdownHTML(eDefVal, eBulkVal, customD){
+        var html = '<div style="font-weight:700;font-size:14px;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Σ calculation breakdown &mdash; ' + defTitle + ' (' + esc(modelName) + ')</div>';
+        html += '<div style="font-size:13px;font-weight:600;color:var(--wbg-ink,#1a1e2e);margin-bottom:2px">' + defTitle + ' &mdash; every number below is read from the calculation record, not recomputed</div>';
+        html += '<div style="font-size:12px;color:var(--wbg-muted,#6b7280);margin-bottom:8px">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials)</div>';
 
-      var eDef = (r.E_def !== undefined) ? r.E_def : ((r.E_defect !== undefined) ? r.E_defect : ((lastResult && lastResult.E_def !== undefined) ? lastResult.E_def : null));
-      var eBulk = (r.E_bulk !== undefined) ? r.E_bulk : ((lastResult && lastResult.E_bulk !== undefined) ? lastResult.E_bulk : null);
-
-      var renderedBlocks = 0;
-      if (lastResult && lastResult.columns) {
-        lastResult.columns.forEach(function(col){
-          if (col !== "defect" && col !== "vertex" && col !== "Ef_min" && col !== "Ef_max" && col !== "dn" && r[col] !== undefined && r[col] !== null) {
-            var efVal = parseFloat(r[col]);
-            var vtx = (lastResult.vertex_of && lastResult.vertex_of[col]) ? String(lastResult.vertex_of[col]) : (r.vertex ? String(r.vertex) : "");
-            
-            html += '<div style="margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
-                 + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(col) + ' vertex</b>'
-                 + (vtx ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(vtx.split("+").join(" + ")) + ')</span>' : '')
+        if (customD) {
+          Object.keys(customD).forEach(function(k){
+            var C = customD[k];
+            html += '<div style="margin:10px 0 2px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
+                 + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(k) + ' vertex</b>'
+                 + (C.vertex ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(C.vertex.split("+").join(" + ")) + ')</span>' : '')
                  + '</div>';
-            
-            // STRICT COMPACT TABLE: width:auto, display:table (NO full-width stretching!)
             html += '<div style="margin:4px 0"><table style="display:table;width:auto;border-collapse:collapse;white-space:nowrap;font-size:13px">';
-            
-            if (eDef !== null && eDef !== undefined) {
-              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>defect</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eDef) + '</td></tr>';
-            }
-            if (eBulk !== null && eBulk !== undefined) {
-              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>bulk</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eBulk) + '</td></tr>';
-            }
-            
-            if (eDef !== null && eDef !== undefined && eBulk !== null && eBulk !== undefined && !isNaN(efVal)) {
-              var muTerm = efVal - (parseFloat(eDef) - parseFloat(eBulk));
-              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">&Sigma;(&minus;n&mu;) (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(muTerm) + '</td></tr>';
-              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
-              html += '</table></div>';
-              html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:4px">check: ' + f4(eDef) + ' &minus; (' + f4(eBulk) + ') + ' + f4(muTerm) + ' = ' + f4(efVal) + ' eV</div>';
-            } else {
-              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
-              html += '</table></div>';
-            }
-            
-            renderedBlocks++;
+            [["E<sub>defect</sub> (eV)", f4(C.E_def_eV)], ["E<sub>bulk</sub> (eV)", f4(C.E_bulk_eV)], ["&Sigma;(&minus;n&mu;) (eV)", f4(C.mu_term_eV)], ["E<sub>f</sub> (eV)", "<b>" + f4(C.Ef_eV) + "</b>"]].forEach(function(rw){
+              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">' + rw[0] + '</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + rw[1] + '</td></tr>';
+            });
+            html += '</table></div>';
+            var mus = String(C.mu_terms||"").split("|").filter(Boolean).map(function(t){ var p=t.split(":"); var nx=(p[1]||"").split("x"); return sub(p[0])+": n = "+nx[0]+", &mu; = "+nx[1]+" eV"; });
+            if (mus.length) html += '<div style="margin:2px 0;font-size:12.5px">&mu; terms: ' + mus.join(" &nbsp;&middot;&nbsp; ") + '</div>';
+            if (C.limiting) html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12.5px">limiting phase: ' + fsub(C.limiting) + '</div>';
+            html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:2px">check: ' + f4(C.E_def_eV) + ' &minus; (' + f4(C.E_bulk_eV) + ') + ' + f4(C.mu_term_eV) + ' = ' + f4(C.E_def_eV - C.E_bulk_eV + C.mu_term_eV) + ' eV</div>';
+          });
+        } else {
+          var renderedBlocks = 0;
+          if (lastResult && lastResult.columns) {
+            lastResult.columns.forEach(function(col){
+              if (col !== "defect" && col !== "vertex" && col !== "Ef_min" && col !== "Ef_max" && col !== "dn" && r[col] !== undefined && r[col] !== null) {
+                var efVal = parseFloat(r[col]);
+                var vtx = (lastResult.vertex_of && lastResult.vertex_of[col]) ? String(lastResult.vertex_of[col]) : (r.vertex ? String(r.vertex) : "");
+                
+                html += '<div style="margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
+                     + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(col) + ' vertex</b>'
+                     + (vtx ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(vtx.split("+").join(" + ")) + ')</span>' : '')
+                     + '</div>';
+                
+                html += '<div style="margin:4px 0"><table style="display:table;width:auto;border-collapse:collapse;white-space:nowrap;font-size:13px">';
+                
+                if (eDefVal !== null && eDefVal !== undefined) {
+                  html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>defect</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eDefVal) + '</td></tr>';
+                }
+                if (eBulkVal !== null && eBulkVal !== undefined) {
+                  html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>bulk</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eBulkVal) + '</td></tr>';
+                }
+                
+                if (eDefVal !== null && eDefVal !== undefined && eBulkVal !== null && eBulkVal !== undefined && !isNaN(efVal)) {
+                  var muTerm = efVal - (parseFloat(eDefVal) - parseFloat(eBulkVal));
+                  html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">&Sigma;(&minus;n&mu;) (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(muTerm) + '</td></tr>';
+                  html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
+                  html += '</table></div>';
+                  html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:4px">check: ' + f4(eDefVal) + ' &minus; (' + f4(eBulkVal) + ') + ' + f4(muTerm) + ' = ' + f4(efVal) + ' eV</div>';
+                } else {
+                  html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
+                  html += '</table></div>';
+                }
+                
+                renderedBlocks++;
+              }
+            });
           }
-        });
+
+          if (!renderedBlocks && r.Ef_min !== undefined) {
+            html += '<div style="margin-top:6px;font-size:13px"><b>E<sub>f</sub> min:</b> ' + r.Ef_min + ' eV &nbsp;&middot;&nbsp; <b>E<sub>f</sub> max:</b> ' + r.Ef_max + ' eV</div>';
+          }
+        }
+
+        infoEl.innerHTML = html;
+        typeWrite(infoEl);
       }
 
-      if (!renderedBlocks && r.Ef_min !== undefined) {
-        html += '<div style="margin-top:6px;font-size:13px"><b>E<sub>f</sub> min:</b> ' + r.Ef_min + ' eV &nbsp;&middot;&nbsp; <b>E<sub>f</sub> max:</b> ' + r.Ef_max + ' eV</div>';
-      }
+      // Initial fast render
+      var initialEDef = (r.E_def !== undefined) ? r.E_def : ((r.E_defect !== undefined) ? r.E_defect : ((lastResult && lastResult.E_def !== undefined) ? lastResult.E_def : null));
+      var initialEBulk = (r.E_bulk !== undefined) ? r.E_bulk : ((lastResult && lastResult.E_bulk !== undefined) ? lastResult.E_bulk : null);
+      renderBreakdownHTML(initialEDef, initialEBulk, null);
 
-      infoEl.innerHTML = html;
-      typeWrite(infoEl);
-
-      // Async enrichment: try fetching full campaign record from data() to fill E_def_eV, E_bulk_eV, mu_terms if matching host & model exist
+      // Async enrichment: Smart lookup across all hosts in A.hosts!
       try {
         if (typeof data === "function") {
           data().then(function(A){
             if (!A || !A.hosts) return;
-            var mpMatch = lastResult && lastResult.mp;
-            if (!mpMatch) return;
-            var H = A.hosts[mpMatch];
-            if (!H || !H.mlff) return;
-            var M = H.mlff[modelName];
-            if (!M) return;
-            var D = M[r.defect];
-            if (!D) return;
-            // Build full mlffBlock HTML!
-            var hFull = '<div style="font-weight:700;font-size:14px;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Σ calculation breakdown &mdash; ' + defTitle + ' (' + esc(modelName) + ')</div>';
-            hFull += '<div style="font-size:13px;font-weight:600;color:var(--wbg-ink,#1a1e2e);margin-bottom:2px">' + defTitle + ' &mdash; every number below is read from the campaign record, not recomputed</div>';
-            hFull += '<div style="font-size:12px;color:var(--wbg-muted,#6b7280);margin-bottom:8px">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials)</div>';
-            
-            Object.keys(D).forEach(function(k){
-              var C = D[k];
-              hFull += '<div style="margin:10px 0 2px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
-                     + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(k) + ' vertex</b>'
-                     + (C.vertex ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(C.vertex.split("+").join(" + ")) + ')</span>' : '')
-                     + '</div>';
-              hFull += '<div style="margin:4px 0"><table style="display:table;width:auto;border-collapse:collapse;white-space:nowrap;font-size:13px">';
-              [["E<sub>defect</sub> (eV)", f4(C.E_def_eV)], ["E<sub>bulk</sub> (eV)", f4(C.E_bulk_eV)], ["&Sigma;(&minus;n&mu;) (eV)", f4(C.mu_term_eV)], ["E<sub>f</sub> (eV)", "<b>" + f4(C.Ef_eV) + "</b>"]].forEach(function(rw){
-                hFull += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">' + rw[0] + '</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + rw[1] + '</td></tr>';
-              });
-              hFull += '</table></div>';
-              var mus = String(C.mu_terms||"").split("|").filter(Boolean).map(function(t){ var p=t.split(":"); var nx=(p[1]||"").split("x"); return sub(p[0])+": n = "+nx[0]+", &mu; = "+nx[1]+" eV"; });
-              if (mus.length) hFull += '<div style="margin:2px 0;font-size:12.5px">&mu; terms: ' + mus.join(" &nbsp;&middot;&nbsp; ") + '</div>';
-              if (C.limiting) hFull += '<div style="color:var(--wbg-muted,#6b7280);font-size:12.5px">limiting phase: ' + fsub(C.limiting) + '</div>';
-              hFull += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:2px">check: ' + f4(C.E_def_eV) + ' &minus; (' + f4(C.E_bulk_eV) + ') + ' + f4(C.mu_term_eV) + ' = ' + f4(C.E_def_eV - C.E_bulk_eV + C.mu_term_eV) + ' eV</div>';
-            });
-            infoEl.innerHTML = hFull;
-            typeWrite(infoEl);
+            var keys = Object.keys(A.hosts);
+            for (var i = 0; i < keys.length; i++) {
+              var H = A.hosts[keys[i]];
+              if (!H || !H.mlff) continue;
+              var mKey = modelName.replace("-", "_");
+              var M = H.mlff[mKey] || H.mlff[modelName] || H.mlff["MACE_MPA0"];
+              if (!M) continue;
+              var D = M[r.defect];
+              if (D) {
+                renderBreakdownHTML(null, null, D);
+                break;
+              }
+            }
           }).catch(function(_){});
         }
       } catch(_) {}
