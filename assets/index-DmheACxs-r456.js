@@ -5756,7 +5756,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       while ((nd = it.nextNode())) if (nd.textContent.trim()) nodes.push([nd, nd.textContent]);
       var total = nodes.reduce(function(a, p){ return a + p[1].length; }, 0);
       if (!total) return;
-      var chunk = Math.max(10, Math.ceil(total / 30)); // Fast & smooth: completes in < 0.3s
+      var chunk = Math.max(15, Math.ceil(total / 20));
       nodes.forEach(function(p){ p[0].textContent = ""; });
       var i = 0, j = 0;
       var tick = setInterval(function(){
@@ -5767,7 +5767,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           if (j >= full.length){ i++; j = 0; }
         }
         if (i >= nodes.length) clearInterval(tick);
-      }, 10);
+      }, 8);
     }
   function num(v,d){ var n=parseFloat(v); return isNaN(n)?d:n; }
   // format a log / progress line with real subscripts (defect names, E_f, formulas)
@@ -5986,7 +5986,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         try{ defInst = mvMount(q("c_defview"), r.cif || frames[fi], lastResult&&lastResult.bulk_cif, String(r.defect).split("+").length, 420); }catch(e){ defInst=null; }
       }
 
-      // BUILD DEFECT EXPLORER STYLE TYPEWRITER BREAKDOWN CARD (c_definfo) WITH COMPACT COMPRESSED TABLE
+      // BUILD DEFECT EXPLORER STYLE TYPEWRITER BREAKDOWN CARD (c_definfo)
       var infoEl = q("c_definfo");
       if(!infoEl){
         infoEl = document.createElement("div");
@@ -6017,23 +6017,24 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
                  + (vtx ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(vtx.split("+").join(" + ")) + ')</span>' : '')
                  + '</div>';
             
-            html += '<div style="margin:4px 0"><table style="border-collapse:collapse;white-space:nowrap;font-size:13px;min-width:280px">';
+            // STRICT COMPACT TABLE: width:auto, display:table (NO full-width stretching!)
+            html += '<div style="margin:4px 0"><table style="display:table;width:auto;border-collapse:collapse;white-space:nowrap;font-size:13px">';
             
             if (eDef !== null && eDef !== undefined) {
-              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>defect</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eDef) + '</td></tr>';
+              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>defect</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eDef) + '</td></tr>';
             }
             if (eBulk !== null && eBulk !== undefined) {
-              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>bulk</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eBulk) + '</td></tr>';
+              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>bulk</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eBulk) + '</td></tr>';
             }
             
             if (eDef !== null && eDef !== undefined && eBulk !== null && eBulk !== undefined && !isNaN(efVal)) {
               var muTerm = efVal - (parseFloat(eDef) - parseFloat(eBulk));
-              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280)">&Sigma;(&minus;n&mu;) (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(muTerm) + '</td></tr>';
-              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
+              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">&Sigma;(&minus;n&mu;) (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(muTerm) + '</td></tr>';
+              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
               html += '</table></div>';
               html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:4px">check: ' + f4(eDef) + ' &minus; (' + f4(eBulk) + ') + ' + f4(muTerm) + ' = ' + f4(efVal) + ' eV</div>';
             } else {
-              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
+              html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
               html += '</table></div>';
             }
             
@@ -6048,6 +6049,46 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
 
       infoEl.innerHTML = html;
       typeWrite(infoEl);
+
+      // Async enrichment: try fetching full campaign record from data() to fill E_def_eV, E_bulk_eV, mu_terms if matching host & model exist
+      try {
+        if (typeof data === "function") {
+          data().then(function(A){
+            if (!A || !A.hosts) return;
+            var mpMatch = lastResult && lastResult.mp;
+            if (!mpMatch) return;
+            var H = A.hosts[mpMatch];
+            if (!H || !H.mlff) return;
+            var M = H.mlff[modelName];
+            if (!M) return;
+            var D = M[r.defect];
+            if (!D) return;
+            // Build full mlffBlock HTML!
+            var hFull = '<div style="font-weight:700;font-size:14px;color:var(--wbg-accent,#0e7490);margin-bottom:4px">Σ calculation breakdown &mdash; ' + defTitle + ' (' + esc(modelName) + ')</div>';
+            hFull += '<div style="font-size:13px;font-weight:600;color:var(--wbg-ink,#1a1e2e);margin-bottom:2px">' + defTitle + ' &mdash; every number below is read from the campaign record, not recomputed</div>';
+            hFull += '<div style="font-size:12px;color:var(--wbg-muted,#6b7280);margin-bottom:8px">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials)</div>';
+            
+            Object.keys(D).forEach(function(k){
+              var C = D[k];
+              hFull += '<div style="margin:10px 0 2px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
+                     + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(k) + ' vertex</b>'
+                     + (C.vertex ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(C.vertex.split("+").join(" + ")) + ')</span>' : '')
+                     + '</div>';
+              hFull += '<div style="margin:4px 0"><table style="display:table;width:auto;border-collapse:collapse;white-space:nowrap;font-size:13px">';
+              [["E<sub>defect</sub> (eV)", f4(C.E_def_eV)], ["E<sub>bulk</sub> (eV)", f4(C.E_bulk_eV)], ["&Sigma;(&minus;n&mu;) (eV)", f4(C.mu_term_eV)], ["E<sub>f</sub> (eV)", "<b>" + f4(C.Ef_eV) + "</b>"]].forEach(function(rw){
+                hFull += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280)">' + rw[0] + '</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + rw[1] + '</td></tr>';
+              });
+              hFull += '</table></div>';
+              var mus = String(C.mu_terms||"").split("|").filter(Boolean).map(function(t){ var p=t.split(":"); var nx=(p[1]||"").split("x"); return sub(p[0])+": n = "+nx[0]+", &mu; = "+nx[1]+" eV"; });
+              if (mus.length) hFull += '<div style="margin:2px 0;font-size:12.5px">&mu; terms: ' + mus.join(" &nbsp;&middot;&nbsp; ") + '</div>';
+              if (C.limiting) hFull += '<div style="color:var(--wbg-muted,#6b7280);font-size:12.5px">limiting phase: ' + fsub(C.limiting) + '</div>';
+              hFull += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:2px">check: ' + f4(C.E_def_eV) + ' &minus; (' + f4(C.E_bulk_eV) + ') + ' + f4(C.mu_term_eV) + ' = ' + f4(C.E_def_eV - C.E_bulk_eV + C.mu_term_eV) + ' eV</div>';
+            });
+            infoEl.innerHTML = hFull;
+            typeWrite(infoEl);
+          }).catch(function(_){});
+        }
+      } catch(_) {}
 
       renderTraj(r);
     }
