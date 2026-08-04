@@ -6075,7 +6075,8 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       // Initial fast render
       var initialEDef = (r.E_def !== undefined) ? r.E_def : ((r.E_defect !== undefined) ? r.E_defect : ((lastResult && lastResult.E_def !== undefined) ? lastResult.E_def : null));
       var initialEBulk = (r.E_bulk !== undefined) ? r.E_bulk : ((lastResult && lastResult.E_bulk !== undefined) ? lastResult.E_bulk : null);
-      renderBreakdownHTML(initialEDef, initialEBulk, null);
+      var _bd = (r && r.breakdown && Object.keys(r.breakdown).length) ? r.breakdown : null;
+      renderBreakdownHTML(initialEDef, initialEBulk, _bd);
 
       // Async enrichment: Smart lookup across all hosts in A.hosts!
       try {
