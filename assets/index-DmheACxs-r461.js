@@ -5822,7 +5822,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
     cols.forEach(function(c){ h+='<th>'+(nice[c]||(/-rich$/.test(c)?sub(c)+" (eV)":sub(c)))+'</th>'; });
     h+='</tr></thead><tbody>';
     rows.forEach(function(r,ri){ h+='<tr data-ri="'+ri+'">'; cols.forEach(function(c){ var v=r[c];
-      if(c==="defect") v=sub(v); else if(c==="vertex") v=fsub(String(v).split("+").join(" + ")); else v=(v===null||v===undefined)?'&mdash;':v; h+='<td>'+v+'</td>'; }); h+='</tr>'; });
+      if(c==="defect") v=sub(v); else if(c==="vertex") v=fsub(String(v).split(/\s*[+\u2013\u2014-]\s*/).filter(Boolean).join(" + ")); else v=(v===null||v===undefined)?'&mdash;':v; h+='<td>'+v+'</td>'; }); h+='</tr>'; });
     h+='</tbody></table></div>'; el.innerHTML=h;
     el.querySelectorAll("tbody tr").forEach(function(tr){
       tr.addEventListener("click", function(){
@@ -6008,7 +6008,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
             var C = customD[k];
             html += '<div style="margin:10px 0 2px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
                  + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(k) + ' vertex</b>'
-                 + (C.vertex ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(C.vertex.split("+").join(" + ")) + ')</span>' : '')
+                 + (C.vertex ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(C.vertex.split(/\s*[+\u2013\u2014-]\s*/).filter(Boolean).join(" + ")) + ')</span>' : '')
                  + '</div>';
             html += '<div style="margin:4px 0"><table style="display:table;width:auto;border-collapse:collapse;white-space:nowrap;font-size:13px">';
             [["E<sub>defect</sub> (eV)", f4(C.E_def_eV)], ["E<sub>bulk</sub> (eV)", f4(C.E_bulk_eV)], ["&Sigma;(&minus;n&mu;) (eV)", f4(C.mu_term_eV)], ["E<sub>f</sub> (eV)", "<b>" + f4(C.Ef_eV) + "</b>"]].forEach(function(rw){
@@ -6030,7 +6030,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
                 
                 html += '<div style="margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--wbg-border,#d4d8e0)">'
                      + '<b style="color:var(--wbg-ink,#1a1e2e)">' + sub(col) + ' vertex</b>'
-                     + (vtx ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(vtx.split("+").join(" + ")) + ')</span>' : '')
+                     + (vtx ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(vtx.split(/\s*[+\u2013\u2014-]\s*/).filter(Boolean).join(" + ")) + ')</span>' : '')
                      + '</div>';
                 
                 html += '<div style="margin:4px 0"><table style="display:table;width:auto;border-collapse:collapse;white-space:nowrap;font-size:13px">';
@@ -11389,7 +11389,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     keys.forEach(function(k){
       var C = D[k], vtx = (H.vertex_of||{})[k];
       h += '<div style="margin:10px 0 2px;padding-top:8px;border-top:1px solid '+HAIR+'">'
-         + '<b style="color:'+INK+'">'+k+' vertex</b>'+(vtx ? ' <span style="color:'+MUT+'">(bounding phases: '+fsub(vtx.split("+").join(" + "))+')</span>' : '')
+         + '<b style="color:'+INK+'">'+k+' vertex</b>'+(vtx ? ' <span style="color:'+MUT+'">(bounding phases: '+fsub(vtx.split(/\s*[+\u2013\u2014-]\s*/).filter(Boolean).join(" + "))+')</span>' : '')
          + (k === sel ? ' <span style="color:'+TEAL+'">&mdash; selected above</span>' : '') + '</div>';
       var mu = '<div style="color:'+MUT+';margin-bottom:2px">&mu;: ';
       Object.keys(C.mu_eV||{}).forEach(function(el){ mu += sb('&Delta;n_'+el)+' = '+C.dn[el]+', &mu;('+el+') = '+f4(C.mu_eV[el])+' eV &nbsp; '; });
@@ -11426,7 +11426,7 @@ new MutationObserver(function(){patch();}).observe(document.body,{childList:true
     keys.forEach(function(k){
       var C = D[k];
       h += '<div style="margin:10px 0 2px;padding-top:8px;border-top:1px solid '+HAIR+'">'
-         + '<b style="color:'+INK+'">'+k+' vertex</b>'+(C.vertex ? ' <span style="color:'+MUT+'">(bounding phases: '+fsub(C.vertex.split("+").join(" + "))+')</span>' : '')
+         + '<b style="color:'+INK+'">'+k+' vertex</b>'+(C.vertex ? ' <span style="color:'+MUT+'">(bounding phases: '+fsub(C.vertex.split(/\s*[+\u2013\u2014-]\s*/).filter(Boolean).join(" + "))+')</span>' : '')
          + (k === sel ? ' <span style="color:'+TEAL+'">&mdash; selected above</span>' : '') + '</div>';
       h += '<div style="overflow-x:auto"><table style="border-collapse:collapse;white-space:nowrap">';
       [["E<sub>defect</sub> (eV)",f4(C.E_def_eV)],["E<sub>bulk</sub> (eV)",f4(C.E_bulk_eV)],["&Sigma;(&minus;n&mu;) (eV)",f4(C.mu_term_eV)],["E<sub>f</sub> (eV)","<b>"+f4(C.Ef_eV)+"</b>"]].forEach(function(rw){
