@@ -5756,7 +5756,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       while ((nd = it.nextNode())) if (nd.textContent.trim()) nodes.push([nd, nd.textContent]);
       var total = nodes.reduce(function(a, p){ return a + p[1].length; }, 0);
       if (!total) return;
-      var chunk = Math.max(15, Math.ceil(total / 20));
+      var chunk = Math.max(2, Math.ceil(total / 240));           // match the Sigma calc pane: ~2 s, one cycle
       nodes.forEach(function(p){ p[0].textContent = ""; });
       var i = 0, j = 0;
       var tick = setInterval(function(){
