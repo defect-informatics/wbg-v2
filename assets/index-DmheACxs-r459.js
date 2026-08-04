@@ -5692,7 +5692,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         '<label>Your Materials Project API key <span class="muted">(required)</span></label>' +
         '<input type="password" id="c_key" placeholder="paste your free MP API key">' +
         '<div class="hint">Free at <a href="https://materialsproject.org/api" target="_blank" rel="noopener">materialsproject.org/api</a>. Used only to download competing phases; not stored.</div>' +
-        '<label>MLFF model</label><select id="c_model"><option value="CHGNet">CHGNet</option><option value="MACE-MPA-0">MACE-MPA-0</option><option value="ORB">ORB</option></select>' +
+        '<label>MLFF model</label><select id="c_model"><option value="CHGNet">CHGNet</option><option value="MACE-MPA-0">MACE-MPA-0</option></select>' +
         '<label>Specific defects <span class="muted">(optional)</span></label>' +
         '<textarea id="c_custom" placeholder="V_Na, Cl_i, Cl_i+O_i"></textarea>' +
         '<div class="hint">V<sub>X</sub> (vacancy), X<sub>i</sub> (interstitial), A<sub>B</sub> (A on a B site). Join a complex with +.</div>' +
@@ -6048,6 +6048,11 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
                   html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
                   html += '</table></div>';
                   html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:4px">check: ' + f4(eDefVal) + ' &minus; (' + f4(eBulkVal) + ') + ' + f4(muTerm) + ' = ' + f4(efVal) + ' eV</div>';
+                  var _mt = r.mu_terms || r.mu || (lastResult && lastResult.mu_terms) || "";
+                  var _ms = String(_mt).split("|").filter(Boolean).map(function(t){ var p=t.split(":"); var nx=(p[1]||"").split("x"); return sub(p[0])+": n = "+nx[0]+", &mu; = "+nx[1]+" eV"; });
+                  if (_ms.length) html += '<div style="margin:2px 0;font-size:12.5px">&mu; terms: ' + _ms.join(" &nbsp;&middot;&nbsp; ") + '</div>';
+                  var _lim = r.limiting || r.limiting_phase || (lastResult && lastResult.limiting) || "";
+                  if (_lim) html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12.5px">limiting phase: ' + fsub(_lim) + '</div>';
                 } else {
                   html += '<tr><td style="padding:2px 20px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
                   html += '</table></div>';
