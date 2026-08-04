@@ -5748,7 +5748,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
   function sub(s){ return esc(s||"").replace(/([A-Za-z])_([A-Za-z0-9]+)/g,'$1<sub>$2</sub>'); }
   function fsub(s){ return String(s||"").replace(/([A-Za-z\)])(\d+)/g, "$1<sub>$2</sub>"); }
 
-  function f4(v){ if(v===null||v===undefined||isNaN(v)) return "&mdash;"; var n=parseFloat(v); return (Math.abs(n)<1e-4&&n!==0)?n.toExponential(3):n.toFixed(2); }
+  function f4(v){ if(v===null||v===undefined||isNaN(v)) return "&mdash;"; var n=parseFloat(v); return (Math.abs(n)<1e-4&&n!==0)?n.toExponential(3):n.toFixed(3); }
 
     function typeWrite(pane){
       if (!pane) return;
@@ -5756,7 +5756,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       while ((nd = it.nextNode())) if (nd.textContent.trim()) nodes.push([nd, nd.textContent]);
       var total = nodes.reduce(function(a, p){ return a + p[1].length; }, 0);
       if (!total) return;
-      var chunk = Math.max(2, Math.ceil(total / 240));
+      var chunk = Math.max(10, Math.ceil(total / 30)); // Fast & smooth: completes in < 0.3s
       nodes.forEach(function(p){ p[0].textContent = ""; });
       var i = 0, j = 0;
       var tick = setInterval(function(){
@@ -5767,7 +5767,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
           if (j >= full.length){ i++; j = 0; }
         }
         if (i >= nodes.length) clearInterval(tick);
-      }, 8);
+      }, 10);
     }
   function num(v,d){ var n=parseFloat(v); return isNaN(n)?d:n; }
   // format a log / progress line with real subscripts (defect names, E_f, formulas)
@@ -5986,7 +5986,7 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
         try{ defInst = mvMount(q("c_defview"), r.cif || frames[fi], lastResult&&lastResult.bulk_cif, String(r.defect).split("+").length, 420); }catch(e){ defInst=null; }
       }
 
-      // BUILD DEFECT EXPLORER STYLE TYPEWRITER BREAKDOWN CARD (c_definfo) WITH ALL VALUES
+      // BUILD DEFECT EXPLORER STYLE TYPEWRITER BREAKDOWN CARD (c_definfo) WITH COMPACT COMPRESSED TABLE
       var infoEl = q("c_definfo");
       if(!infoEl){
         infoEl = document.createElement("div");
@@ -6002,8 +6002,8 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
       html += '<div style="font-size:13px;font-weight:600;color:var(--wbg-ink,#1a1e2e);margin-bottom:2px">' + defTitle + ' &mdash; every number below is read from the calculation record, not recomputed</div>';
       html += '<div style="font-size:12px;color:var(--wbg-muted,#6b7280);margin-bottom:8px">E<sub>f</sub> = E<sub>defect</sub> &minus; E<sub>bulk</sub> + &Sigma;(&minus;n<sub>i</sub>&mu;<sub>i</sub>) &nbsp;(neutral supercells, this model&rsquo;s OWN energies and chemical potentials)</div>';
 
-      var eDef = r.E_def !== undefined ? r.E_def : (r.E_defect !== undefined ? r.E_defect : (lastResult ? lastResult.E_def : null));
-      var eBulk = r.E_bulk !== undefined ? r.E_bulk : (lastResult ? lastResult.E_bulk : null);
+      var eDef = (r.E_def !== undefined) ? r.E_def : ((r.E_defect !== undefined) ? r.E_defect : ((lastResult && lastResult.E_def !== undefined) ? lastResult.E_def : null));
+      var eBulk = (r.E_bulk !== undefined) ? r.E_bulk : ((lastResult && lastResult.E_bulk !== undefined) ? lastResult.E_bulk : null);
 
       var renderedBlocks = 0;
       if (lastResult && lastResult.columns) {
@@ -6017,23 +6017,23 @@ function $6({n:e,l:t}){return(0,Q.jsxs)(`div`,{style:{background:`var(--wbg-pane
                  + (vtx ? ' <span style="color:var(--wbg-muted,#6b7280)">(bounding phases: ' + fsub(vtx.split("+").join(" + ")) + ')</span>' : '')
                  + '</div>';
             
-            html += '<div style="overflow-x:auto"><table style="border-collapse:collapse;white-space:nowrap;font-size:13px">';
+            html += '<div style="margin:4px 0"><table style="border-collapse:collapse;white-space:nowrap;font-size:13px;min-width:280px">';
             
             if (eDef !== null && eDef !== undefined) {
-              html += '<tr><td style="padding:2px 10px;color:var(--wbg-muted,#6b7280)">E<sub>defect</sub> (eV)</td><td style="padding:2px 10px;text-align:right">' + f4(eDef) + '</td></tr>';
+              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>defect</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eDef) + '</td></tr>';
             }
             if (eBulk !== null && eBulk !== undefined) {
-              html += '<tr><td style="padding:2px 10px;color:var(--wbg-muted,#6b7280)">E<sub>bulk</sub> (eV)</td><td style="padding:2px 10px;text-align:right">' + f4(eBulk) + '</td></tr>';
+              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280)">E<sub>bulk</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(eBulk) + '</td></tr>';
             }
             
             if (eDef !== null && eDef !== undefined && eBulk !== null && eBulk !== undefined && !isNaN(efVal)) {
               var muTerm = efVal - (parseFloat(eDef) - parseFloat(eBulk));
-              html += '<tr><td style="padding:2px 10px;color:var(--wbg-muted,#6b7280)">&Sigma;(&minus;n&mu;) (eV)</td><td style="padding:2px 10px;text-align:right">' + f4(muTerm) + '</td></tr>';
-              html += '<tr><td style="padding:2px 10px;color:var(--wbg-muted,#6b7280)">E<sub>f</sub> (eV)</td><td style="padding:2px 10px;text-align:right"><b>' + f4(efVal) + '</b></td></tr>';
+              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280)">&Sigma;(&minus;n&mu;) (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:600">' + f4(muTerm) + '</td></tr>';
+              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
               html += '</table></div>';
               html += '<div style="color:var(--wbg-muted,#6b7280);font-size:12px;margin-top:4px">check: ' + f4(eDef) + ' &minus; (' + f4(eBulk) + ') + ' + f4(muTerm) + ' = ' + f4(efVal) + ' eV</div>';
             } else {
-              html += '<tr><td style="padding:2px 10px;color:var(--wbg-muted,#6b7280)">E<sub>f</sub> (eV)</td><td style="padding:2px 10px;text-align:right"><b>' + f4(efVal) + '</b></td></tr>';
+              html += '<tr><td style="padding:2px 24px 2px 0;color:var(--wbg-muted,#6b7280);font-weight:700">E<sub>f</sub> (eV)</td><td style="padding:2px 0;text-align:right;font-family:monospace;font-weight:700;color:var(--wbg-accent,#0e7490)">' + f4(efVal) + '</td></tr>';
               html += '</table></div>';
             }
             

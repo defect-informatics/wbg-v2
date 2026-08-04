@@ -1,9 +1,9 @@
-const CACHE = 'wbg-v2-r454-force-clear';
+const CACHE = 'wbg-v2-r455-force-clear';
 const ASSETS = [
   './',
   './index.html',
-  './assets/index-DmheACxs-r454.js',
-  './assets/index-GChtEimG-r454.css'
+  './assets/index-DmheACxs-r455.js',
+  './assets/index-GChtEimG-r455.css'
 ];
 
 self.addEventListener('install', e => {
