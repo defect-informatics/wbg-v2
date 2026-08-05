@@ -1,4 +1,4 @@
-const CACHE = 'wbg-v2-r457-force-clear';
+const CACHE = 'wbg-v2-a1ff722298';
 const ASSETS = [
   './',
   './index.html',
