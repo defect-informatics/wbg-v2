@@ -1,7 +1,7 @@
-# Repository structure — `defect-informatics/wbg-v2`
+# Repository structure — `defect-informatics/wbg`
 
 Kosmos, the Wide-Bandgap Semiconductor Defect Library, served at
-**https://defect-informatics.github.io/wbg-v2/**
+**https://defect-informatics.github.io/wbg/**
 
 This repo is the *published artefact*, not the source. There is no build step here: the front end
 is a pre-built bundle (`assets/index-*.js`), and every payload path is a string literal compiled
