@@ -1,8 +1,8 @@
-const CACHE = 'wbg-r464';
+const CACHE = 'wbg-r465';
 const ASSETS = [
   './',
   './index.html',
-  './assets/index-DmheACxs-r464.js',
+  './assets/index-DmheACxs-r465.js',
   './assets/index-GChtEimG-r459.css'
 ];
 
